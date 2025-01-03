@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Tableau de bord</title>
+</head>
+<body>
+    <h2>Bienvenue sur le tableau de bord</h2>
+    <p>Vous êtes connecté !</p>
+
+    <form action="/protected" method="get">
+        <button>What is the User ?</button>
+    </form>
+
+    <form action="/profile">
+        <button>Profile</button>
+    </form>
+
+    <form action="{{ url_for('logout') }}" method="POST">
+        <button type="submit">Se déconnecter</button>
+    </form>
+
+</body>
+</html>

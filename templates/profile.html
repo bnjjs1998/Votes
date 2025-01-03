@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Profil</title>
+</head>
+<body>
+    <h2>Bienvenue, {{ user['username'] }}</h2>
+
+    <div id="profile-info">
+        <p>Nom d'utilisateur: <span id="username">{{ user['username'] }}</span></p>
+        <p>Email: <span id="email">{{ user['email'] }}</span></p> <!-- Remplacez `email` par les champs réels dans votre base -->
+        <p>Créé le: <span id="created_at">{{ user['created_at'] }}</span></p> <!-- Exemple de champ -->
+    </div>
+
+    <script>
+        // Utiliser les données passées depuis Flask (Jinja2) dans JavaScript
+        const user = {
+            username: "{{ user['username'] }}",
+            email: "{{ user['email'] }}",  // Exemple de champ
+            created_at: "{{ user['created_at'] }}"  // Exemple de champ
+        };
+
+        // Exemple de manipulations JavaScript avec ces données
+        console.log(user);  // Affiche les données dans la console
+        // Vous pouvez maintenant utiliser ces données dans votre logique JavaScript
+    </script>
+</body>
+</html>
