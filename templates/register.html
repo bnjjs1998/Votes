@@ -6,8 +6,9 @@
     <title>Inscription</title>
 </head>
 <body>
+    <a href="{{ url_for('login') }}">retour to</a>
     <h2>Register</h2>
-    <form action="/register" method="post">
+    <form action="/register" method="POST">
         <label for="email">Email :</label>
         <input type="email" id="email" name="email" required><br><br>
 

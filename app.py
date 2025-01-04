@@ -1,8 +1,12 @@
+import json
+
+from bson import ObjectId
 from flask import Flask, request, jsonify, redirect, url_for, render_template
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
 import uuid
+from pymongo import ReturnDocument
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"  # Changez cette clé pour sécuriser votre application
@@ -17,26 +21,12 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
-# User Model
-class User(UserMixin):
-    def __init__(self, id, username, email):
-        self.id = id
-        self.username = username
-        self.email = email
-
-@login_manager.user_loader
-def load_user(user_id):
-    user_data = mongo.db.users.find_one({"_id": user_id})
-    if user_data:
-        return User(user_id, user_data["username"], user_data["email"])
-    return None
-
+#import des différentes routes du system de log
+from systeme_log import *
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     return render_template('login.html')
-
-
 
 @app.route('/dashboard')
 @login_required
@@ -59,55 +49,28 @@ def profile():
     }
     return jsonify(user_profile), 200
 
-
-# Routes
-@app.route('/register', methods=['POST'])
-def register():
-    if request.method == 'POST':
-        # Récupérer les données du formulaire
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
-
-        if mongo.db.users.find_one({"email": email}):
-            return jsonify({"message": "User already exists"}), 400
-
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        user_id = str(uuid.uuid4())
-        mongo.db.users.insert_one({
-            "_id": user_id,
-            "username": username,
-            "email": email,
-            "password": hashed_password
-        })
-        return jsonify({"message": "User registered successfully"}), 201
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        # Récupérer les données du formulaire
-        email = request.form.get('email')
-        password = request.form.get('password')
-
-        # Vérifier si l'utilisateur existe dans la base de données
-        user_data = mongo.db.users.find_one({"email": email})
-        if not user_data or not bcrypt.check_password_hash(user_data["password"], password):
-            return jsonify({"message": "Invalid email or password"}), 401
-
-        # Créer l'objet utilisateur et connecter l'utilisateur
-        user = User(user_data["_id"], user_data["username"], user_data["email"])
-        login_user(user, remember=True)  # Crée un cookie persistant avec remember=True
-
-        # Rediriger vers le tableau de bord
-        return redirect(url_for('dashboard'))
-
-    # Afficher le formulaire de connexion pour les requêtes GET
-    return render_template('login.html')
-@app.route('/logout', methods=['POST'])
+@app.route('/counter', methods=['GET', 'POST'])
 @login_required
-def logout():
-    logout_user()
-    return jsonify({"message": "Logged out successfully"})
+def counter():
+    # Utilisez current_user.id tel quel si c'est un UUID
+    user_id = current_user.id  # Assurez-vous que current_user.id est déjà une chaîne (UUID)
+
+    # Trouver et mettre à jour le document en utilisant le UUID directement
+    result = mongo.db.users.find_one_and_update(
+        {"_id": user_id},  # Pas besoin de convertir en ObjectId, utilisez directement l'UUID
+        {"$inc": {"counter": 1}},
+        upsert=True,
+        return_document=ReturnDocument.AFTER
+    )
+
+    # Convertir le _id en string si nécessaire
+    if "_id" in result:
+        result["_id"] = str(result["_id"])
+
+    return jsonify({
+        "total_document": result,
+        "routes_Counter": 200
+    })
 
 @app.route('/protected', methods=['GET'])
 @login_required
