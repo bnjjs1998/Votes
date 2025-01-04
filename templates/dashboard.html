@@ -20,9 +20,20 @@
         <button>Profile</button>
     </form>
 
+    <form action="/test" METHOD="post" >
+        <p>Ici, vous pouvez rédiger votre question</p>
+        <label for="Post_Test">Test Push</label>
+        <input id="Post_Test" name="Post_Test" type="text" >
+        <button>Poster le test</button>
+    </form>
+
+
+
     <form action="{{ url_for('logout') }}" method="POST">
         <button type="submit">Se déconnecter</button>
     </form>
+
+
 
 </body>
 </html>

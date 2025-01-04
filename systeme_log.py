@@ -1,3 +1,5 @@
+from flask import render_template
+
 from app import *
 # User Model
 class User(UserMixin):

@@ -52,17 +52,16 @@ def profile():
 @app.route('/counter', methods=['GET', 'POST'])
 @login_required
 def counter():
-    # Utilisez current_user.id tel quel si c'est un UUID
-    user_id = current_user.id  # Assurez-vous que current_user.id est déjà une chaîne (UUID)
+
+    user_id = current_user.id
 
     # Trouver et mettre à jour le document en utilisant le UUID directement
     result = mongo.db.users.find_one_and_update(
-        {"_id": user_id},  # Pas besoin de convertir en ObjectId, utilisez directement l'UUID
+        {"_id": user_id},
         {"$inc": {"counter": 1}},
         upsert=True,
         return_document=ReturnDocument.AFTER
     )
-
     # Convertir le _id en string si nécessaire
     if "_id" in result:
         result["_id"] = str(result["_id"])
@@ -75,7 +74,33 @@ def counter():
 @app.route('/protected', methods=['GET'])
 @login_required
 def protected():
-    return jsonify({"message": f"Welcome {current_user.username}"})
+    return jsonify({
+        "message": f"Welcome {current_user.username}",
+        "email": current_user.email,
+    }
+    )
+@app.route('/test', methods=['GET', 'POST'])
+@login_required
+def test():
+    #On commence par récupérer l'user connecté à l'instanté
+    user_id = current_user.id
+    # on récupère le contenant du formulaire
+    test_post = request.form.get("Post_Test")
+    print(f"Test Post Value: {test_post}")
+    #Maintenant, je teste si le champ est vide
+    if test_post == '':
+        return render_template('dashboard.html')
+
+    result = mongo.db.users.find_one_and_update(
+        {"_id": user_id},  # critère de recherche
+        {"$push": {"question": test_post}},  # opération de mise à jour
+        return_document=True
+    )
+
+    return jsonify({
+        "status_code": 200,
+        "message":"success"
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)
