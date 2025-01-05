@@ -79,7 +79,7 @@ def protected():
         "email": current_user.email,
     }
     )
-@app.route('/test', methods=['POST'])
+@app.route('/sondage', methods=['POST'])
 @login_required
 def test():
     if request.method == 'POST':
