@@ -6,6 +6,7 @@ from app import app
 from app import mongo
 from systeme_log import *
 
+
 @app.route('/sondage', methods=['POST'])
 @login_required
 def test():
@@ -25,6 +26,8 @@ def test():
                 'choices': questions
             }]
         }
+        #Inserer la donnée dans Sondage
+        mongo.db.Sondages.insert_one(Sondages)
         # j'insère dans la liste Sondage
         mongo.db.users.find_one_and_update(
             {"_id": current_user.id},

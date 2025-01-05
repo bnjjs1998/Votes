@@ -25,13 +25,6 @@ function fetchSondage() {
 console.log(document.cookie);
 
 
-
-
-
-
-
-
-
 // Appeler la fonction lorsque la page est chargée
 document.addEventListener('DOMContentLoaded', fetchSondage);
 
