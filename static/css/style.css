@@ -1,0 +1,20 @@
+header{
+    display: flex;
+    background-color: #333;
+    color: white;
+    height: 50px;
+    width: 100%;
+    justify-content: center;
+}
+/* Footer */
+footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+    background-color: #333;
+    color: white;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+}

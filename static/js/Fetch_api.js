@@ -1,5 +1,5 @@
 // URL de l'API
-const apiUrl = '/get_sondage';
+const apiUrl = '/get_sondage_current_id';
 // Fonction pour appeler l'API
 function fetchSondage() {
   fetch(apiUrl, {

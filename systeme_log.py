@@ -1,6 +1,10 @@
 from flask import render_template
-
+from flask_login import UserMixin
 from app import *
+from app import app
+from app import mongo
+
+
 # User Model
 class User(UserMixin):
     def __init__(self, id, username, email):

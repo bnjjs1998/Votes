@@ -1,7 +1,9 @@
-from flask import request
+from flask import request, jsonify
 from flask_login import login_required
 
 from app import *
+from app import app
+from app import mongo
 from systeme_log import *
 
 @app.route('/sondage', methods=['POST'])
@@ -26,19 +28,11 @@ def test():
         # j'insère dans la liste Sondage
         mongo.db.users.find_one_and_update(
             {"_id": current_user.id},
-            {"$push": {"sondage": Sondages}}
+            {"$push": {"Sondage": Sondages}}
         )
         return jsonify({
             "status_code": 200,
             "message": "Sondage ajouté avec succès",
             "Sondages": Sondages
         })
-
-# je vais commencer à mettre en place le systeme de compte
-@app.route('/get_sondage', methods=['GET'])
-@login_required
-def get_sondage():
-    return jsonify({
-        "status_code": 200,
-    })
 

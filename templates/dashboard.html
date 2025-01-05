@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Tableau de bord</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+    <header>
+        <h1>Ici sera designer mon futur menu</h1>
+    </header>
+    <br>
+    <br>
+    <br>
     <h2>Bienvenue sur le tableau de bord</h2>
     <p>Vous êtes connecté !</p>
 
@@ -45,8 +52,12 @@
     </form>
 
 
+    <footer>
+        <h1>Ici mon Footer</h1>
+    </footer>
+
     <!-- Ici, ça sera l'endroit d'import de mes différents scripts -->
-    <script src="{{ url_for('static', filename='Fetch_api.js') }}"></script>
-    <script src="{{ url_for('static', filename='Votes_systeme_Front.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/Fetch_api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/Votes_systeme_Front.js') }}"></script>
 </body>
 </html>
