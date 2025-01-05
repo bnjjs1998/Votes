@@ -79,28 +79,44 @@ def protected():
         "email": current_user.email,
     }
     )
-@app.route('/test', methods=['GET', 'POST'])
+@app.route('/test', methods=['POST'])
 @login_required
 def test():
-    #On commence par récupérer l'user connecté à l'instanté
-    user_id = current_user.id
-    # on récupère le contenant du formulaire
-    test_post = request.form.get("Post_Test")
-    print(f"Test Post Value: {test_post}")
-    #Maintenant, je teste si le champ est vide
-    if test_post == '':
-        return render_template('dashboard.html')
+    if request.method == 'POST':
+        # Récupérer les données du formulaire
+        survey_title = request.form.get('surveyTitle')
+        questions = request.form.getlist('questions[0][choices][]')
 
-    result = mongo.db.users.find_one_and_update(
-        {"_id": user_id},  # critère de recherche
-        {"$push": {"question": test_post}},  # opération de mise à jour
-        return_document=True
-    )
+        # Verifier les données
+        if not survey_title or not questions:
+            return jsonify({"status_code": 400, "message": "Le titre et les choix sont requis."})
 
-    return jsonify({
-        "status_code": 200,
-        "message":"success"
-    })
+        # Construire les données du sondage
+        Sondages = {
+            'title': survey_title,
+            'questions': [{
+                'choices': questions
+            }]
+        }
+
+        # Insérer le sondage dans la collection 'surveys'
+        result = mongo.db.surveys.insert_one(Sondages)
+
+        # Ajouter le sondage complet dans le document de l'utilisateur
+        Sondages['_id'] = str(result.inserted_id)  # Convertir l'ObjectId en chaîne
+
+        # j'insère dans la liste Sondage
+        mongo.db.users.find_one_and_update(
+            {"_id": current_user.id},
+            {"$push": {"sondage": Sondages}}
+        )
+        return jsonify({
+            "status_code": 200,
+            "message": "Sondage ajouté avec succès",
+            "Sondages": Sondages
+        })
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

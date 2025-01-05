@@ -20,14 +20,25 @@
         <button>Profile</button>
     </form>
 
-    <form action="/test" METHOD="post" >
-        <p>Ici, vous pouvez rédiger votre question</p>
-        <label for="Post_Test">Test Push</label>
-        <input id="Post_Test" name="Post_Test" type="text" >
-        <button>Poster le test</button>
+    <form action="/test" method="post">
+        <div id="surveyForm">
+            <h2>Ajouter un sondage</h2>
+            <label for="surveyTitle">Titre du sondage</label>
+            <input id="surveyTitle" name="surveyTitle" type="text" required placeholder="Titre du sondage">
+            <br>
+            <div class="question">
+                <label for="choices">Choix</label>
+                <input name="questions[0][choices][]" type="text" placeholder="Choix 1" required>
+                <input name="questions[0][choices][]" type="text" placeholder="Choix 2" required>
+                <input name="questions[0][choices][]" type="text" placeholder="Choix 3" required>
+            </div>
+            <br>
+            <br>
+            <button type="submit">Soumettre le sondage</button>
+        </div>
     </form>
-
-
+    <br>
+    <br>
 
     <form action="{{ url_for('logout') }}" method="POST">
         <button type="submit">Se déconnecter</button>
