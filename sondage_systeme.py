@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from flask import request, jsonify
+from flask_jwt_extended import current_user
 from flask_login import login_required
 
 from app import *
@@ -19,13 +22,17 @@ def test():
         if not Title_quest or not questions:
             return jsonify({"status_code": 400, "message": "Le titre et les choix sont requis."})
 
+        date = datetime.datetime.now()
         # Construire les données du sondage
         Sondages = {
             'title': Title_quest,
+            "Created_by": current_user.usernames,
+            "Date": date.strftime("%d/%m/%Y"),
             'questions': [{
                 'choices': questions
             }]
         }
+
         #Inserer la donnée dans Sondage
         mongo.db.Sondages.insert_one(Sondages)
         # j'insère dans la liste Sondage

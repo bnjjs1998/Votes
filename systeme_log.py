@@ -1,9 +1,8 @@
-from flask import render_template
-from flask_login import UserMixin
+from flask import render_template, jsonify
+from flask_login import UserMixin, login_required
 from app import *
 from app import app
 from app import mongo
-
 
 # User Model
 class User(UserMixin):
@@ -46,6 +45,7 @@ def register():
             "password": hashed_password
         })
         return jsonify({"message": "User registered successfully"}), 201
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

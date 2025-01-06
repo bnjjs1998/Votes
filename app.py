@@ -6,6 +6,8 @@ from flask_bcrypt import Bcrypt
 import uuid
 from pymongo import ReturnDocument
 
+
+
 app = Flask(__name__)
 app.secret_key = "supersecretkey"  # Changez cette clé pour sécuriser votre application
 
@@ -19,10 +21,14 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
+
+
 #import des différentes routes du system de log
 from systeme_log import *
 from sondage_systeme import *
 from Obtenir_Mes_Sondages import *
+from Route_basique import *
+
 
 
 

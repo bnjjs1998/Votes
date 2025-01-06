@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from flask_login import login_required
+from flask_login import login_required, current_user
 from app import *
 from app import app
 from app import mongo
@@ -10,6 +10,7 @@ from systeme_log import *
 @login_required
 def get_sondage():
     # Ici, je prépare une requete qui va extraire toutes les questions que l'utilisateur connecté a posées
+
     data_quest = mongo.db.users.find_one(
         {"_id": current_user.id},
         {"Sondage": 1}

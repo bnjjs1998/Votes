@@ -7,37 +7,38 @@
 </head>
 <body>
     <header>
-        <h1>Ici sera designer mon futur menu</h1>
+        <h2>Ici sera designer mon futur menu</h2>
+
+        <form action="{{ url_for('logout') }}" method="POST">
+            <button type="submit">Se déconnecter</button>
+        </form>
+
+        <form action="/protected" method="get">
+            <button>What is the User ?</button>
+        </form>
+        <form action="/counter">
+            <button>Counter</button>
+        </form>
+
+        <form action="/profile">
+            <button>Profile</button>
+        </form>
     </header>
-    <br>
-    <br>
     <br>
     <h2>Bienvenue sur le tableau de bord</h2>
     <p>Vous êtes connecté !</p>
 
-    <form action="/protected" method="get">
-        <button>What is the User ?</button>
-    </form>
-
-    <form action="/counter">
-        <button>Counter</button>
-    </form>
-
-    <form action="/profile">
-        <button>Profile</button>
-    </form>
-
     <form action="/sondage" method="post">
-        <div id="surveyForm">
-            <h2>Ajouter un sondage</h2>
+        <div class="question_container">
+            <h3>Ajouter un sondage</h3>
             <label for="surveyTitle">Titre du sondage</label>
-            <input id="surveyTitle" name="surveyTitle" type="text" required placeholder="Titre du sondage">
+            <input class="Quest_sub" id="surveyTitle" name="surveyTitle" type="text" required placeholder="Titre du sondage">
             <br>
             <div class="question">
-                <label for="choices">Choix</label>
-                <input name="questions[0][choices][]" type="text" placeholder="Choix 1" required>
-                <input name="questions[0][choices][]" type="text" placeholder="Choix 2" required>
-                <input name="questions[0][choices][]" type="text" placeholder="Choix 3" required>
+                <label for="choices">Possibilité de réponse</label>
+                <input class="choice_input_sub"  name="questions[0][choices][]" type="text" placeholder="Choix 1" required>
+                <input class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 2" required>
+                <input class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 3" required>
             </div>
             <br>
             <br>
@@ -46,15 +47,32 @@
     </form>
     <br>
     <br>
+    <br>
 
-    <form action="{{ url_for('logout') }}" method="POST">
-        <button type="submit">Se déconnecter</button>
+    <h3>Les sondages auxquel j'ai accès</h3>
+
+    <form>
+        <h1>Quelle est ton plat préféré ?</h1>
+        <div class="Choice">
+            <label for="choice_1_input" >classement</label>
+            <input id="choice_1_input" minlength="1" maxlength="3" type="number" placeholder="choice_1">
+            <h3>Epinard</h3>
+        </div>
+
+        <div class="Choice" >
+            <label for="choice_1_input" >classement</label>
+            <input id="choice_1_input" minlength="1" maxlength="3" type="number" placeholder="choice_1">
+            <h3>Lasagne</h3>
+        </div>
+
+        <div class="Choice" >
+            <label for="choice_3_input" >classement</label>
+            <input id="choice_3_input" minlength="1" maxlength="3" type="number" placeholder="choice_1">
+            <h3>Bolognaise</h3>
+        </div>
+
+        <button>Soumettre le vote</button>
     </form>
-
-
-    <footer>
-        <h1>Ici mon Footer</h1>
-    </footer>
 
     <!-- Ici, ça sera l'endroit d'import de mes différents scripts -->
     <script src="{{ url_for('static', filename='js/Mes_Sondages_API.js') }}"></script>

@@ -1,1 +1,1 @@
-console.log("Votes systeme");
+console.log(document.cookie)

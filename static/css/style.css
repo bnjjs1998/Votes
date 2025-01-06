@@ -5,6 +5,8 @@ header{
     height: 50px;
     width: 100%;
     justify-content: center;
+    align-items: center;
+    gap: 25px;
 }
 /* Footer */
 footer {
@@ -17,4 +19,36 @@ footer {
     width: 100%;
     position: absolute;
     bottom: 0;
+}
+.question_container{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.choice_input_sub{
+    width: 20%;
+
+}
+
+.question_container button {
+    width: 10%;
+}
+
+.question{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.Quest_sub{
+    width: 50%;
+    padding: 10px;
+}
+
+.Choice{
+    display: flex;
+    gap: 20px;
+    align-items: center;
+
 }
