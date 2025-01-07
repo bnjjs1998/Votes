@@ -7,27 +7,29 @@
 </head>
 <body>
     <header>
-        <h2>Ici sera designer mon futur menu</h2>
 
-        <form action="{{ url_for('logout') }}" method="POST">
-            <button type="submit">Se déconnecter</button>
-        </form>
+        <h1>{{ user }}</h1>
+        <div class="menu"  >
+            <h2>Ici sera designer mon futur menu</h2>
+            <form action="{{ url_for('logout') }}" method="POST">
+                <button type="submit">Se déconnecter</button>
+            </form>
 
-        <form action="/protected" method="get">
-            <button>What is the User ?</button>
-        </form>
-        <form action="/counter">
-            <button>Counter</button>
-        </form>
+            <form action="/protected" method="get">
+                <button>What is the User ?</button>
+            </form>
+            <form action="/counter">
+                <button>Counter</button>
+            </form>
 
-        <form action="/profile">
-            <button>Profile</button>
-        </form>
+            <form action="/profile">
+                <button>Profile</button>
+            </form>
+        </div>
     </header>
-    <br>
-    <h2>Bienvenue sur le tableau de bord</h2>
-    <p>Vous êtes connecté !</p>
 
+    <h2>Bienvenue sur le tableau de bord, <span class="user_class" >{{ user }} </span></h2>
+    <!-- Le formulaire pour poster des sondages -->
     <form action="/sondage" method="post">
         <div class="question_container">
             <h3>Ajouter un sondage</h3>
@@ -36,45 +38,40 @@
             <br>
             <div class="question">
                 <label for="choices">Possibilité de réponse</label>
-                <input class="choice_input_sub"  name="questions[0][choices][]" type="text" placeholder="Choix 1" required>
-                <input class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 2" required>
+                <input id="choices" class="choice_input_sub"  name="questions[0][choices][]" type="text" placeholder="Choix 1" required>
+                <input   class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 2" required>
                 <input class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 3" required>
             </div>
-            <br>
-            <br>
+
             <button type="submit">Soumettre le sondage</button>
         </div>
     </form>
-    <br>
-    <br>
-    <br>
-
-    <h3>Les sondages auxquel j'ai accès</h3>
-
-    <form>
+    <!-- Le formulaire pour poster les réponses des sondages -->
+   <form class="form_div" action="/Post_vote" method="POST">
         <h1>Quelle est ton plat préféré ?</h1>
         <div class="Choice">
-            <label for="choice_1_input" >classement</label>
-            <input id="choice_1_input" minlength="1" maxlength="3" type="number" placeholder="choice_1">
+            <label for="choice_1_Input">Classement</label>
+            <input id="choice_1_Input" name="choice_1_Input" min="1" max="3" type="number" placeholder="choice_1" required>
             <h3>Epinard</h3>
         </div>
-
-        <div class="Choice" >
-            <label for="choice_1_input" >classement</label>
-            <input id="choice_1_input" minlength="1" maxlength="3" type="number" placeholder="choice_1">
+        <div class="Choice">
+            <label for="choice_2_Input">Classement</label>
+            <input id="choice_2_Input" name="choice_2_Input" min="1" max="3" type="number" placeholder="choice_2" required>
             <h3>Lasagne</h3>
         </div>
-
-        <div class="Choice" >
-            <label for="choice_3_input" >classement</label>
-            <input id="choice_3_input" minlength="1" maxlength="3" type="number" placeholder="choice_1">
+        <div class="Choice">
+            <label for="choice_3_Input">Classement</label>
+            <input id="choice_3_Input" name="choice_3_Input" min="1" max="3" type="number" placeholder="choice_3" required>
             <h3>Bolognaise</h3>
         </div>
 
-        <button>Soumettre le vote</button>
+        <button type="submit">Soumettre le vote</button>
     </form>
-
     <!-- Ici, ça sera l'endroit d'import de mes différents scripts -->
+
+    <footer>
+        <h1>Le footer</h1>
+    </footer>
     <script src="{{ url_for('static', filename='js/Mes_Sondages_API.js') }}"></script>
     <script src="{{ url_for('static', filename='js/Sondage_Fetch.js') }}"></script>
 </body>

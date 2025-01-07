@@ -20,6 +20,16 @@ def load_user(user_id):
 
 
 # Routes pour le systeme de log
+
+
+# le systeme des identications des users pages
+@app.route('/me')
+@login_required
+def me():
+    return current_user.username
+
+
+
 @app.route("/substcription", methods=["GET", "POST"])
 def substriction():
     return render_template('register.html')

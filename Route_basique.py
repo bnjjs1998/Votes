@@ -14,7 +14,7 @@ def index():
 @login_required
 def dashboard():
     # Vous pouvez ici ajouter des informations à transmettre au template (comme l'utilisateur connecté)
-    return render_template('dashboard.html')
+    return render_template('dashboard.html', user= current_user.username)
 
 @app.route('/profile', methods=['GET'])
 @login_required  # Assure que seul un utilisateur connecté peut accéder à cette route

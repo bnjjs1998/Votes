@@ -9,7 +9,6 @@ from app import app
 from app import mongo
 from systeme_log import *
 
-
 @app.route('/sondage', methods=['POST'])
 @login_required
 def test():
@@ -46,3 +45,35 @@ def test():
             "Sondages": Sondages
         })
 
+@app.route('/Post_vote', methods=['POST'])
+@login_required
+def post_vote():
+    # Récupérer les données envoyées via POST
+    choice_1 = request.form.get('choice_1_Input')
+    choice_2 = request.form.get('choice_2_Input')
+    choice_3 = request.form.get('choice_3_Input')
+    print(choice_1, choice_2, choice_3)
+    # Vérifier que les valeurs ne sont pas nulles
+    if not choice_1 or not choice_2 or not choice_3:
+        return jsonify({
+            "status_code": 400,
+            "message": "Tous les choix doivent être remplis."
+        })
+    if choice_1 == choice_2 and choice_3 == choice_2:
+        print("Un des votes est identique ça ne convient pas")
+        return jsonify({
+            "status_code": 500,
+        })
+
+    #ici je vais mettre la requete find and update vers ma database
+
+
+
+
+    # Retourner les choix sous forme de JSON
+    return jsonify({
+        "status_code": 200,
+        "choice_1": choice_1,
+        "choice_2": choice_2,
+        "choice_3": choice_3
+    })
