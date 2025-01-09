@@ -7,7 +7,6 @@
 </head>
 <body>
     <header>
-
         <h1>{{ user }}</h1>
         <div class="menu"  >
             <h2>Ici sera designer mon futur menu</h2>
@@ -27,6 +26,11 @@
             </form>
         </div>
     </header>
+    <br>
+    <br>
+    <form action="/get_allprofile" method="get" >
+        <button>Liste des inscriptions</button>
+    </form>
 
     <h2>Bienvenue sur le tableau de bord, <span class="user_class" >{{ user }} </span></h2>
     <!-- Le formulaire pour poster des sondages -->
@@ -67,11 +71,10 @@
 
         <button type="submit">Soumettre le vote</button>
     </form>
-    <!-- Ici, ça sera l'endroit d'import de mes différents scripts -->
-
     <footer>
         <h1>Le footer</h1>
     </footer>
+    <!-- Ici, ça sera l'endroit d'import de mes différents scripts -->
     <script src="{{ url_for('static', filename='js/Mes_Sondages_API.js') }}"></script>
     <script src="{{ url_for('static', filename='js/Sondage_Fetch.js') }}"></script>
 </body>
