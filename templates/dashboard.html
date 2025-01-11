@@ -64,7 +64,7 @@
     </form>
 
     <!-- Le formulaire pour poster les réponses des sondages -->
-   <form class="form_div" action="/Post_vote" method="POST">
+    <form class="form_div" action="/Post_vote" method="POST">
         <h1>Quelle est ton plat préféré ?</h1>
         <div class="Choice">
             <label for="choice_1_Input">Classement</label>
@@ -84,11 +84,18 @@
 
         <button type="submit">Soumettre le vote</button>
     </form>
+
+
+    <div id="questions-container">
+        <h1>Ici le contenu généré</h1>
+        <!-- Les titres des questions seront insérés ici -->
+        <button>Générer</button>
+    </div>
+
     <footer>
         <h1>Le footer</h1>
     </footer>
     <!-- Ici, ça sera l'endroit d'import de mes différents scripts -->
-    <script src="{{ url_for('static', filename='js/Mes_Sondages_API.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/Sondage_Fetch.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/random_quest.js') }}"></script>
 </body>
 </html>

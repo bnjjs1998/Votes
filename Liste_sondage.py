@@ -6,11 +6,16 @@ from app import *
 from app import app
 from app import mongo
 
+#retourner un élément aléatoire
+
+
+
 
 @app.route('/get_questions', methods=['GET'])
 @login_required
 def liste_sondage():
     all_question = mongo.db.questions.find()
+    hello = 'Hello, World!'
     # Convertir les résultats MongoDB en liste de dictionnaires et ajouter l'ID de chaque question
     questions = []
     for question in all_question:
@@ -18,7 +23,10 @@ def liste_sondage():
         question_data.pop('_id', None)
         questions.append(question_data)
 
-    return jsonify({'questions': questions})
+    return jsonify(
+        {'questions': questions},
+        {'hello': hello}
+    )
 
 
 @app.route('/my_questions', methods=['GET'])

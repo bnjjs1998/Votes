@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from flask import request, jsonify
 from flask_jwt_extended import current_user
 from flask_login import login_required
@@ -18,18 +16,17 @@ def post_sondage():
     print(f"Titre du sondage: {title}")
     print(f"Choix de réponses: {choices}")
 
-    #Une fois récupère, je crée un jeu de donnée pour préparer la requete
+    #Une fois récupère, je crée un jeu de donnée pour préparer la requete sur la collection question global
     sondage_data = {
         "title_question": title,
         "choices": choices,
         "Créateur" : current_user.username,
     }
+    #jeux de donnée pour la session de l'utilisateur
     my_sondage_data = {
         "title_question": title,
         "choices": choices,
     }
-
-
 
     #insertions du jeu de donnée dans la collection users
     result_in_users = mongo.db.users.update_one(
