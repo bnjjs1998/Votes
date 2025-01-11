@@ -18,19 +18,23 @@ def post_sondage():
     print(f"Titre du sondage: {title}")
     print(f"Choix de réponses: {choices}")
 
-
-
     #Une fois récupère, je crée un jeu de donnée pour préparer la requete
     sondage_data = {
         "title_question": title,
         "choices": choices,
         "Créateur" : current_user.username,
     }
+    my_sondage_data = {
+        "title_question": title,
+        "choices": choices,
+    }
+
+
 
     #insertions du jeu de donnée dans la collection users
     result_in_users = mongo.db.users.update_one(
         {"_id": current_user.id},
-        {"$push": {"Mes sondages": sondage_data}}
+        {"$push": {"Mes sondages": my_sondage_data}}
     )
 
     #On va créer une collection question pour l'ensemble des questions

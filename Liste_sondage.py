@@ -6,14 +6,36 @@ from app import *
 from app import app
 from app import mongo
 
-collection = ''
 
-@app.route('/liste_sondage', methods=['GET'])
+@app.route('/get_questions', methods=['GET'])
 @login_required
 def liste_sondage():
+    all_question = mongo.db.questions.find()
+    # Convertir les résultats MongoDB en liste de dictionnaires et ajouter l'ID de chaque question
+    questions = []
+    for question in all_question:
+        question_data = question.copy()
+        question_data.pop('_id', None)
+        questions.append(question_data)
+
+    return jsonify({'questions': questions})
 
 
+@app.route('/my_questions', methods=['GET'])
+@login_required
+def my_sondage():
+    user_questions = mongo.db.users.find_one(
+        {'_id': current_user.id},
+        {'Mes sondages': 1}
+    )
 
 
+    if user_questions is None or 'Mes sondages' not in user_questions:
+        return jsonify({
+            "message":"vous devez poster au moin un sondage"
+        })
 
-    return
+    return jsonify({
+        "messages":"success",
+        "my_questions": user_questions['Mes sondages']
+    })
