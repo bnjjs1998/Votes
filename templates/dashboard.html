@@ -89,7 +89,7 @@
     <div id="questions-container">
         <h1>Ici le contenu généré</h1>
         <!-- Les titres des questions seront insérés ici -->
-        <button>Générer</button>
+        <button onclick="generate_questions()" >Générer</button>
     </div>
 
     <footer>
@@ -97,5 +97,6 @@
     </footer>
     <!-- Ici, ça sera l'endroit d'import de mes différents scripts -->
     <script src="{{ url_for('static', filename='js/random_quest.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/quest.js') }}"></script>
 </body>
 </html>

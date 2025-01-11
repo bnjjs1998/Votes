@@ -15,7 +15,7 @@ from app import mongo
 @login_required
 def liste_sondage():
     all_question = mongo.db.questions.find()
-    hello = 'Hello, World!'
+
     # Convertir les résultats MongoDB en liste de dictionnaires et ajouter l'ID de chaque question
     questions = []
     for question in all_question:
@@ -25,7 +25,7 @@ def liste_sondage():
 
     return jsonify(
         {'questions': questions},
-        {'hello': hello}
+
     )
 
 
