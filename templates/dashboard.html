@@ -13,7 +13,6 @@
             <form action="{{ url_for('logout') }}" method="POST">
                 <button type="submit">Se déconnecter</button>
             </form>
-
             <form action="/protected" method="get">
                 <button>What is the User ?</button>
             </form>
@@ -24,32 +23,48 @@
             <form action="/profile">
                 <button>Profile</button>
             </form>
+
+            <form>
+
+            </form>
         </div>
     </header>
-    <br>
     <br>
     <form action="/get_allprofile" method="get" >
         <button>Liste des inscriptions</button>
     </form>
-
     <h2>Bienvenue sur le tableau de bord, <span class="user_class" >{{ user }} </span></h2>
-    <!-- Le formulaire pour poster des sondages -->
-    <form action="/sondage" method="post">
+
+
+    <form action="/Post_sondage" method="post">
         <div class="question_container">
             <h3>Ajouter un sondage</h3>
+
+            <!-- Titre du sondage -->
             <label for="surveyTitle">Titre du sondage</label>
-            <input class="Quest_sub" id="surveyTitle" name="surveyTitle" type="text" required placeholder="Titre du sondage">
+            <input class="Quest_sub" id="surveyTitle" name="quest_title" type="text" required placeholder="Titre du sondage">
             <br>
-            <div class="question">
-                <label for="choices">Possibilité de réponse</label>
-                <input id="choices" class="choice_input_sub"  name="questions[0][choices][]" type="text" placeholder="Choix 1" required>
-                <input   class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 2" required>
-                <input class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 3" required>
-            </div>
+
+            <!-- Question et choix -->
+            <fieldset>
+                <legend>Choix de réponses</legend>
+
+                <div class="question">
+                    <label for="choice1">Choix 1</label>
+                    <input id="choice1" class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 1" required>
+
+                    <label for="choice2">Choix 2</label>
+                    <input id="choice2" class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 2" required>
+
+                    <label for="choice3">Choix 3</label>
+                    <input id="choice3" class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 3" required>
+                </div>
+            </fieldset>
 
             <button type="submit">Soumettre le sondage</button>
         </div>
     </form>
+
     <!-- Le formulaire pour poster les réponses des sondages -->
    <form class="form_div" action="/Post_vote" method="POST">
         <h1>Quelle est ton plat préféré ?</h1>

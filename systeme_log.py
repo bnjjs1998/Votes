@@ -1,4 +1,4 @@
-from flask import render_template, jsonify
+from flask import render_template, jsonify, request
 from flask_login import UserMixin, login_required
 from app import *
 from app import app
