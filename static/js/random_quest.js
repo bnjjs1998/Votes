@@ -16,47 +16,40 @@ fetch('/get_questions', {
       if (data && data.questions) {
           console.log('Questions:', data.questions); // Affiche les questions si elles existent
 
-          // Fonction pour générer dynamiquement les questions avec leurs choix
-          function Question(data) {
-              this._id = data._id;
-              this.title_question = data.title_question;
-              this.choices = data.choices;
-              this.creator = data['Créateur'];
-          }
+          const questionsContainer = document.getElementById('questions-container');
 
-          Question.prototype.render = function(containerId) {
-              const questionsContainer = document.getElementById(containerId);
+          data.questions.forEach(question => {
+              // Créer un conteneur pour la question
+              const questionDiv = document.createElement('div');
 
               // Créer un titre pour la question
               const title = document.createElement('h2');
-              title.textContent = this.title_question;
-              questionsContainer.appendChild(title);
+              title.textContent = question.title_question;
+              questionDiv.appendChild(title);
 
               // Créer un créateur de la question
               const creator = document.createElement('p');
-              creator.textContent = `Créé par: ${this.creator}`;
-              questionsContainer.appendChild(creator);
+              creator.textContent = `Créé par: ${question['Créateur']}`;
+              questionDiv.appendChild(creator);
 
-              // Parcourir les choix et créer un label et un input pour chaque choix
-              this.choices.forEach((choice, index) => {
+              // Créer les choix sous forme de radio boutons
+              question.choices.forEach((choice, index) => {
                   const label = document.createElement('label');
                   label.textContent = `Choice ${choice}`;
-                  label.setAttribute('for', `choice${index}`);
+                  label.setAttribute('for', `choice${question._id}_${index}`);
 
                   const input = document.createElement('input');
-                  input.setAttribute('id', `choice${index}`);
+                  input.setAttribute('id', `choice${question._id}_${index}`);
                   input.setAttribute('type', 'number');
-                  input.setAttribute('name', `question${this._id}`);
+                  input.setAttribute('name', `question${question._id}`); // Groupement des radios par question
                   input.setAttribute('value', choice);
-                  questionsContainer.appendChild(label);
-                  questionsContainer.appendChild(input);
-              });
-          };
 
-          // Pour chaque question, créez une instance de Question et appelez la méthode render
-          data.questions.forEach(questionData => {
-              const question = new Question(questionData);
-              question.render('questions-container'); // Render les questions dans le container
+                  questionDiv.appendChild(label);
+                  questionDiv.appendChild(input);
+              });
+
+              // Ajouter le conteneur de la question au conteneur principal
+              questionsContainer.appendChild(questionDiv);
           });
       } else {
           console.log('Aucune question trouvée dans la réponse');
