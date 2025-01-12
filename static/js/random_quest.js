@@ -11,7 +11,6 @@ fetch('/get_questions', {
     })
     .then(data => {
 
-
         console.log('Données reçues:', data);
         const questionsContainer = document.getElementById('questions-container');
         //je parcours cheques questions 
@@ -103,7 +102,6 @@ fetch('/get_questions', {
                         console.error('Erreur lors de l\'envoi des données:', error);
                     });
             });
-
 
         });
     })
