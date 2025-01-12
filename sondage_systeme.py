@@ -44,30 +44,23 @@ def post_sondage():
         }
     )
 
+
 @app.route('/Post_vote', methods=['POST'])
 @login_required
 def post_vote():
-    # Récupérer les données envoyées via POST
-    choice_1 = request.form.get('choice_1_Input')
-    choice_2 = request.form.get('choice_2_Input')
-    choice_3 = request.form.get('choice_3_Input')
-    print(choice_1, choice_2, choice_3)
-    # Vérifier que les valeurs ne sont pas nulles
-    if not choice_1 or not choice_2 or not choice_3:
+    data = request.get_json()
+    print('donnée reçue :', data)
+
+    #Vérifier que data contient quelque choses
+    if not data:
         return jsonify({
             "status_code": 400,
-            "message": "Tous les choix doivent être remplis."
-        })
-    if choice_1 == choice_2 and choice_3 == choice_2:
-        print("Un des votes est identique ça ne convient pas")
-        return jsonify({
-            "status_code": 500,
+            "message": "Aucune donnée reçue."
         })
 
-    # Retourner les choix sous forme de JSON
+
     return jsonify({
         "status_code": 200,
-        "choice_1": choice_1,
-        "choice_2": choice_2,
-        "choice_3": choice_3
+        "message": "Les réponses ont été reçues.",
+        "choices": data
     })

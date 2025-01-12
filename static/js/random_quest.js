@@ -1,63 +1,96 @@
 fetch('/get_questions', {
-    method: 'GET', // méthode de requête
+    method: 'GET',
 })
-  .then(response => {
-      if (!response.ok) {
-          throw new Error('Erreur de récupération des questions');
-      }
-      return response.json(); // Convertir la réponse en JSON
-  })
-  .then(data => {
-      console.log('Données reçues:', data); // Affiche toute la réponse reçue
-      const questionsContainer = document.getElementById('questions-container');
-      data.questions.forEach(question => {
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erreur de récupération des questions');
+        }
 
-          const questionform = document.createElement('form');
-          questionform.setAttribute('method', 'POST');
-          questionform.setAttribute('action', '');
+        return response.json();
+
+    })
+    .then(data => {
 
 
-          // Créer un titre pour chaque questions du document
-          const title = document.createElement('h2');
-          title.textContent = question.title_question;
-          questionform.appendChild(title);
+        console.log('Données reçues:', data);
+        const questionsContainer = document.getElementById('questions-container');
+        data.questions.forEach(question => {
+            const questionForm = document.createElement('form');
+            questionForm.setAttribute('method', 'POST');
+            questionForm.setAttribute('action', '/Post_vote');
+
+            const title = document.createElement('h2');
+            title.textContent = question.title_question;
+            questionForm.appendChild(title);
+
+            const answers = {};
+
+            question.choices.forEach((choice, index) => {
 
 
-          // Créer les choix sous forme de radio boutons
-          question.choices.forEach((choice, index) => {
+                const label = document.createElement('label');
+                label.textContent = `Choix ${choice} : `;
+                label.setAttribute('for', `choice${question.id}_${index}`);
 
-              //je créer un label pour input de la solution de vote
-              const label = document.createElement('label');
-              label.textContent = `Choice ${choice}`;
-              label.setAttribute('for', `choice${question._id}_${index}`);
+                const input = document.createElement('input');
+                input.setAttribute('id', `choice${question.id}_${index}`);
+                input.setAttribute('type', 'number');
+                input.setAttribute('name', `question${question.id}`);
+                input.setAttribute('placeholder', 'Classer votre préférence');
+                input.setAttribute('min', '1');
+                input.setAttribute('max', '3');
+                input.value = '0';
 
-              // je crée mon attribut
-              const input = document.createElement('input');
+                input.addEventListener('change', function () {
+                    answers[choice] = parseInt(input.value, 10);
+                });
 
-              // Une fois crée je vais définir mon attribut
-              input.setAttribute('id', `choice${question._id}_${index}`);
-              input.setAttribute('type', 'number');
-              input.setAttribute('name', `question${question._id}`);
-              input.setAttribute('value', '1');
-              input.setAttribute('placeholder', 'Classer votre préférence');
-              input.setAttribute('min', '1');
-              input.setAttribute('max', '3');
+                questionForm.appendChild(label);
+                questionForm.appendChild(input);
 
-              questionform.appendChild(label);
-              questionform.appendChild(input);
-          });
 
-          //création du bouton de soumission du formulaire
-          const button_post_vote = document.createElement('button');
-          button_post_vote.textContent = 'Vote';
-          button_post_vote.setAttribute('type', 'submit');
+            });
 
-          //joindre le bouton de soumissions
-          questionform.appendChild(button_post_vote);
-          // Ajouter le conteneur de la question au conteneur principal
-          questionsContainer.appendChild(questionform);
-          });
-  })
-  .catch(error => {
-      console.error('Erreur:', error); // Affiche l'erreur en cas de problème
-  });
+            const buttonPostVote = document.createElement('button');
+            buttonPostVote.textContent = 'Vote';
+            buttonPostVote.setAttribute('type', 'submit');
+
+            questionForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                console.log('Réponses collectées:', answers);
+                const filteredChoices = {};
+
+                // Validation des réponses
+                for (const [key, value_choice] of Object.entries(answers)) {
+                    if (answers['A'] === answers['B'] || answers['A'] === answers['C'] || answers['B'] === answers['C']) {
+                        alert('Les valeurs des choix ne doivent pas être identiques.');
+                        return;  // Empêcher l'envoi si la validation échoue
+                    }
+                }
+
+                // Envoi des réponses au serveur
+                fetch('/Post_vote', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(answers),  // Envoyer les données sous forme JSON
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Réponse du serveur:', data);
+                        // Ajouter d'autres actions après le succès de l'envoi des données
+                    })
+                    .catch(error => {
+                        console.error('Erreur lors de l\'envoi des données:', error);
+                    });
+            });
+
+            questionForm.appendChild(buttonPostVote);
+            questionsContainer.appendChild(questionForm);
+        });
+    })
+    .catch(error => {
+        console.error('Erreur de récupération des questions:', error);
+    });
