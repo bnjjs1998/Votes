@@ -48,17 +48,32 @@ def post_sondage():
 @login_required
 def post_vote():
     try:
+        username = current_user.username
         data = request.get_json()
         print('Donnée reçue:', data)
         title_question = data.get('title_question')
         print(f"Titre de la question : {title_question}")
-
         # Vérifier si 'choices' est bien présent
         choices_data = data.get('choices', {})
         print(f"Choix reçus : {choices_data}")
-
-        for choice in choices_data:
-            print(f"Choix : {choice}")
+        #mise en place du systeme de vote
+        for choice, classement in choices_data.items():
+            counter_classement_1 = 0
+            counter_classement_2 = 0
+            counter_classement_3 = 0
+            print(f"Choix : {choice}, classement : {classement}")
+            if classement == 1:
+                print("C'est votre choix numéros 1")
+                counter_classement_1 = counter_classement_1 + 3
+                print(counter_classement_1)
+            if classement == 2:
+                print("C'est votre choix numéros 2")
+                counter_classement_2 = counter_classement_2 + 2
+                print(counter_classement_2)
+            if classement == 3:
+                print("C'est votre choix numéros 2")
+                counter_classement_3 = counter_classement_3 + 1
+                print(counter_classement_3)
 
         return jsonify({
             "status_code": 200,

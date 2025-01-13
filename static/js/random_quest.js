@@ -29,10 +29,14 @@ fetch('/get_questions', {
 
             // Parcours des choix dans la question
             question.choices.forEach((choice, index) => {
+
+                //Création des différents labels pour l'input
                 const label = document.createElement('label');
                 label.setAttribute('for', `choice${question._id}_${index}`);
                 label.textContent = `Option ${choice} :`;
 
+
+                //Création de l'input en fonction de ce quil trouve dans le document mongo
                 const input = document.createElement('input');
                 input.setAttribute('id', `choice${question._id}_${index}`);
                 input.setAttribute('type', 'number');
