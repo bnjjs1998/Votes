@@ -1,7 +1,6 @@
 from flask import request, jsonify
 from flask_jwt_extended import current_user
 from flask_login import login_required
-
 from app import *
 from app import app
 from app import mongo
@@ -48,19 +47,28 @@ def post_sondage():
 @app.route('/Post_vote', methods=['POST'])
 @login_required
 def post_vote():
-    data = request.get_json()
-    print('donnée reçue :', data)
+    try:
+        data = request.get_json()
+        print('Donnée reçue:', data)
+        title_question = data.get('title_question')
+        print(f"Titre de la question : {title_question}")
 
-    #Vérifier que data contient quelque choses
-    if not data:
+        # Vérifier si 'choices' est bien présent
+        choices_data = data.get('choices', {})
+        print(f"Choix reçus : {choices_data}")
+
+        for choice in choices_data:
+            print(f"Choix : {choice}")
+
         return jsonify({
-            "status_code": 400,
-            "message": "Aucune donnée reçue."
+            "status_code": 200,
+            "message": "Réponses reçues et traitées",
+            "choices": choices_data
         })
 
-
-    return jsonify({
-        "status_code": 200,
-        "message": "Les réponses ont été reçues.",
-        "choices": data
-    })
+    except Exception as e:
+        print(f"Erreur : {e}")
+        return jsonify({
+            "status_code": 500,
+            "message": f"Erreur lors du traitement des votes: {e}"
+        }), 500

@@ -20,7 +20,7 @@ def liste_sondage():
     questions = []
     for question in all_question:
         question_data = question.copy()
-        question_data.pop('_id', None)
+        question_data['_id'] = str(question['_id'])
         questions.append(question_data)
 
     return jsonify(
