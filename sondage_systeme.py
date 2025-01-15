@@ -56,6 +56,16 @@ def post_vote():
         # Vérifier si 'choices' est bien présent
         choices_data = data.get('choices', {})
         print(f"Choix reçus : {choices_data}")
+        #foutre une requete push mongo
+        _id_question = data.get('_id')
+        print("voici l'id de la question à upgrade: ",_id_question)
+        #la requete en dure
+        result_in_question = mongo.db.questions.find_and_update_one(
+            {"questions": _id_question},
+            {"$push":{
+                "classement": choices_data
+            }}
+        )
         #mise en place du systeme de vote
         for choice, classement in choices_data.items():
             counter_classement_1 = 0
@@ -74,13 +84,11 @@ def post_vote():
                 print("C'est votre choix numéros 2")
                 counter_classement_3 = counter_classement_3 + 1
                 print(counter_classement_3)
-
         return jsonify({
             "status_code": 200,
             "message": "Réponses reçues et traitées",
             "choices": choices_data
         })
-
     except Exception as e:
         print(f"Erreur : {e}")
         return jsonify({
