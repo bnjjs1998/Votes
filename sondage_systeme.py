@@ -89,7 +89,7 @@ def post_vote():
             return_document=True
         )
 
-        # Initialisation des compteurs pour chaque rang
+        # Initialisation des compteurs pour chaque rangnnn
         resultat_3 = 0
         resultat_2 = 0
         resultat_1 = 0
