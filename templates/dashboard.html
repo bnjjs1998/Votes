@@ -29,49 +29,52 @@
             <form action="/the_quest" method="get">
                 <button>The questions</button>
             </form>
+
         </div>
     </header>
-    <br>
-    <form action="/get_allprofile" method="get" >
-        <button>Liste des inscriptions</button>
-    </form>
-    <h2>Bienvenue sur le tableau de bord, <span class="user_class" >{{ user }} </span></h2>
 
+    <main>
+        <br>
+        <form action="/get_allprofile" method="get" >
+            <button>Liste des inscriptions</button>
+        </form>
+        <h2>Bienvenue sur le tableau de bord, <span class="user_class" >{{ user }} </span></h2>
+        <form action="/Post_sondage" method="post">
+            <div class="question_container">
+                <h3>Ajouter un sondage</h3>
 
-    <form action="/Post_sondage" method="post">
-        <div class="question_container">
-            <h3>Ajouter un sondage</h3>
+                <!-- Titre du sondage -->
+                <label for="surveyTitle">Titre du sondage</label>
+                <input class="Quest_sub" id="surveyTitle" name="quest_title" type="text" required placeholder="Titre du sondage">
+                <br>
 
-            <!-- Titre du sondage -->
-            <label for="surveyTitle">Titre du sondage</label>
-            <input class="Quest_sub" id="surveyTitle" name="quest_title" type="text" required placeholder="Titre du sondage">
-            <br>
+                <!-- Question et choix -->
+                <fieldset>
+                    <legend>Choix de réponses</legend>
 
-            <!-- Question et choix -->
-            <fieldset>
-                <legend>Choix de réponses</legend>
+                    <div class="question">
+                        <label for="choice1">Choix 1</label>
+                        <input id="choice1" class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 1" required>
 
-                <div class="question">
-                    <label for="choice1">Choix 1</label>
-                    <input id="choice1" class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 1" required>
+                        <label for="choice2">Choix 2</label>
+                        <input id="choice2" class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 2" required>
 
-                    <label for="choice2">Choix 2</label>
-                    <input id="choice2" class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 2" required>
+                        <label for="choice3">Choix 3</label>
+                        <input id="choice3" class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 3" required>
+                    </div>
+                </fieldset>
 
-                    <label for="choice3">Choix 3</label>
-                    <input id="choice3" class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 3" required>
-                </div>
-            </fieldset>
-
-            <button type="submit">Soumetftre le sondage</button>
-        </div>
-    </form>
-
-    <!-- Le formulaire pour poster les réponses des sondages -->
+                <button type="submit">Soumetftre le sondage</button>
+            </div>
+        </form>
+    </main>
+    <!-- Le Footer-->
 
     <footer>
         <h1>Le footer</h1>
     </footer>
+
+
     <!-- Ici, ça sera l'endroit d'import de mes différents scripts -->
     <script src="{{ url_for('static', filename='js/random_quest.js') }}"></script>
     <script src="{{ url_for('static', filename='js/quest.js') }}"></script>
