@@ -9,7 +9,10 @@ from app import mongo
 #retourner un élément aléatoire
 
 
-
+@app.route('/the_quest')
+@login_required
+def the_quest():
+    return  render_template('the_question.html')
 
 @app.route('/get_questions', methods=['GET'])
 @login_required

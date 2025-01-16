@@ -25,6 +25,10 @@
             <form action="/get_questions" method="get">
                 <button> All questions</button>
             </form>
+
+            <form action="/the_quest" method="get">
+                <button>The questions</button>
+            </form>
         </div>
     </header>
     <br>
@@ -64,33 +68,6 @@
     </form>
 
     <!-- Le formulaire pour poster les réponses des sondages -->
-    <form class="form_div" action="/Post_vote" method="POST">
-        <h1>Quelle est ton plat préféré ?</h1>
-        <div class="Choice">
-            <label for="choice_1_Input">Classement</label>
-            <input id="choice_1_Input" name="choice_1_Input" min="1" max="3" type="number" placeholder="choice_1" required>
-            <h3>Epinard</h3>
-        </div>
-        <div class="Choice">
-            <label for="choice_2_Input">Classement</label>
-            <input id="choice_2_Input" name="choice_2_Input" min="1" max="3" type="number" placeholder="choice_2" required>
-            <h3>Lasagne</h3>
-        </div>
-        <div class="Choice">
-            <label for="choice_3_Input">Classement</label>
-            <input id="choice_3_Input" name="choice_3_Input" min="1" max="3" type="number" placeholder="choice_3" required>
-            <h3>Bolognaise</h3>
-        </div>
-
-        <button type="submit">Soumettre les votes</button>
-    </form>
-
-
-    <div id="questions-container">
-        <h1>Ici le contenu généré</h1>
-        <!-- Les titres des questions seront insérés ici -->
-        <button onclick="generate_questions()" >Générer</button>
-    </div>
 
     <footer>
         <h1>Le footer</h1>
