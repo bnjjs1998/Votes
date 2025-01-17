@@ -1,5 +1,6 @@
+import time
 from unittest import result
-
+import time
 from flask import request, jsonify
 from flask_jwt_extended import current_user
 from flask_login import login_required
@@ -12,6 +13,9 @@ from bson.objectid import ObjectId
 @app.route('/Post_sondage', methods=['POST'])
 @login_required
 def post_sondage():
+    # récupérer la date et l'l'heure
+    current
+
     # je récupère les datas du formulaire
     title = request.form['quest_title']
     choices = request.form.getlist('questions[0][choices][]')
@@ -24,6 +28,8 @@ def post_sondage():
         "choices": choices,
         "Créateur" : current_user.username,
     }
+
+
     #jeux de donnée pour la session de l'utilisateur
     my_sondage_data = {
         "title_question": title,
@@ -36,7 +42,9 @@ def post_sondage():
         {"$push": {"Mes sondages": my_sondage_data}}
     )
 
-    #On va créer une collection question pour l'ensemble des questions
+    #On va définir un délais de réponse de l'ulisateurs
+
+    deux_sec = time.sleep(2)
     result_in_question = mongo.db.questions.insert_one(sondage_data)
     return jsonify(
         {
@@ -50,6 +58,8 @@ def post_sondage():
 @app.route('/Post_vote', methods=['POST'])
 @login_required
 def post_vote():
+
+
     # Récupérer les données envoyées par le frontend
     data = request.get_json()
     print('Donnée reçue:', data)
@@ -58,6 +68,7 @@ def post_vote():
     _id_question = data.get('_id')
     title_question = data.get('title_question')
     choices_data = data.get('choices', {})
+    has_voted = data.get('has_voted')
     print(f"ID question : {_id_question}, Choix reçus : {choices_data}")
 
     # Préparer l'objet à ajouter dans mes_classement
@@ -65,6 +76,7 @@ def post_vote():
         "_id_question": _id_question,
         "title": title_question,
         "choices": choices_data,
+        "has_voted": has_voted,
     }
 
     # Vérifier si cette question a déjà été votée

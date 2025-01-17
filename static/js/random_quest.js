@@ -24,19 +24,19 @@ fetch('/get_questions', {
             const answers = {
                 _id: question._id,
                 title_question: question.title_question,
-                choices: {}  // Dictionnaire pour les choix et leurs scores
+                choices: {},
+                has_voted: true // Assurez-vous que has_voted est récupéré correctement
             };
 
             // Parcours des choix dans la question
             question.choices.forEach((choice, index) => {
 
-                //Création des différents labels pour l'input
+                // Création des différents labels pour l'input
                 const label = document.createElement('label');
                 label.setAttribute('for', `choice${question._id}_${index}`);
                 label.textContent = `Option ${choice} :`;
 
-
-                //Création de l'input en fonction de ce quil trouve dans le document mongo
+                // Création de l'input en fonction de ce qu'il trouve dans le document Mongo
                 const input = document.createElement('input');
                 input.setAttribute('id', `choice${question._id}_${index}`);
                 input.setAttribute('type', 'number');
@@ -57,14 +57,18 @@ fetch('/get_questions', {
 
             const buttonPostVote = document.createElement('button');
             buttonPostVote.textContent = 'Vote';
-            buttonPostVote.setAttribute('type', 'submit');
+            buttonPostVote.setAttribute('type', 'submit')
             questionForm.appendChild(buttonPostVote);
 
-            questionsContainer.appendChild(questionForm);
+
+
+
+
 
             // Gestion de la soumission du formulaire
             questionForm.addEventListener('submit', function (event) {
                 event.preventDefault();
+
 
                 console.log('Réponses collectées:', answers);
                 fetch('/Post_vote', {
@@ -76,12 +80,14 @@ fetch('/get_questions', {
                 })
                     .then(response => response.json())
                     .then(data => {
-                        console.log('Réponse du serveur:', answers ,data);
+                        console.log('Réponse du serveur:', data);
                     })
                     .catch(error => {
                         console.error('Erreur lors de l\'envoi des données:', error);
                     });
             });
+
+            questionsContainer.appendChild(questionForm);
         });
     })
     .catch(error => {
