@@ -1,3 +1,82 @@
+*, ::before, ::after{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root{
+    /* Colors */
+    --silver: #bfb5af;
+    --silver-dark-1: #91847c;
+    --alabaster: #F7F1E4;
+    --alabaster-light: #FEFCF7;
+    --palatinate: #571F4E;
+    --hookersgreen: #426A5A;
+    --blue:#214e75;
+    --madder: #A31621;
+    --white: #E9E9E9;
+    --black: #282828;
+
+    /* Property */
+    --border-radius-0: 4px;
+    --border-radius-1: 8px;
+
+    --transition-property: all ease-out .3s;
+    --transition-property-fast: all ease .1s;
+
+    /* Spaces */
+    --form-gap: .6rem;
+    /* Font size */
+    --main-font-size: 3rem;
+    --secondary-font-size: 2.4rem;
+    --tertary-font-size: 1.5rem;
+    --body-font-size: 1rem;
+    --label--font-size: 1.2rem;
+}
+/* ------------------- */
+/* ------------------- */
+/* ------------------- */
+/* General */
+body{
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--white);
+    color: var(--black);
+}
+section{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+.button {
+    outline: none;
+    border: none;
+    padding: 10px 20px;
+    border: var(--silver-dark-1) 2px solid;
+    border-radius: var(--border-radius-0);
+    background-color: var(--white);
+    color: var(--black);
+    cursor: pointer;
+}
+
+.button:active, .button:focus {
+    outline: 2px solid var(--blue);
+    transition: var(--transition-property-fast);
+}
+
+.button:hover {
+    background-color: var(--silver-dark-1);
+    color: var(--alabaster);
+    transition: var(--transition-property);
+}
+
+.submit_button {
+    min-width: inherit;
+    margin-top: 1rem;
+    width: 100%;
+}
+
 header{
     padding-left: 50px;
     display: flex;
@@ -15,6 +94,9 @@ header{
     gap: 50px;
     margin-right: 60px;
 }
+/* ------------------- */
+/* ------------------- */
+/* ------------------- */
 /* Footer */
 footer {
     display: flex;
@@ -26,6 +108,94 @@ footer {
     width: 100%;
     margin-top: 50px;
 }
+
+/* ------------------- */
+/* ------------------- */
+/* ------------------- */
+/* Login */
+.login{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.welcome_container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 35%;
+    background-position: center;
+    background-clip: border-box;
+    background-size: cover;
+    background-image: url('../assets/Background.png');
+}
+.welcome_container h1{
+    color: var(--alabaster);
+    font-size: var(--main-font-size);
+    margin-bottom: 1rem;
+    padding: 0 1rem;
+}
+
+.welcome_container p{
+    color: var(--alabaster);
+    font-size: var(--tertary-font-size);
+    margin-bottom: 1rem;
+    padding: 0 1rem;
+}
+
+.login_wrapper{
+    width: 65%;
+    padding: 4rem;
+}
+.login_wrapper h2{
+    font-size: var(--secondary-font-size);
+    color: var(--blue);
+    margin-bottom: 1rem;
+}
+.form_container{
+    display: flex;
+    flex-direction: column;
+    gap: var(--form-gap);
+    padding: 1rem 2rem;
+    /* width: 70%; */
+    border-radius: var(--border-radius-1);
+}
+.input_container{
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+    width: 100%;
+}
+
+.input_container label{
+    font-size: var(--label-font-size);
+    color: var(--silver-dark-1);
+}
+
+.input_container input{
+    padding: 10px;
+    border-radius: var(--border-radius-0);
+    border: 2px solid var(--silver-dark-1);
+    outline: none;
+    background-color: var(--alabaster-light);
+    color: var(--black);
+}
+
+input:focus{
+    /* outline-offset: 2px; */
+    outline: 2px solid var(--blue);
+    transition: var(--transition-property-fast);
+}
+
+/* ------------------- */
+/* ------------------- */
+/* ------------------- */
+/* Register */
+
+
+/* Dashboard */
+
 .question_container{
     display: flex;
     flex-direction: column;
