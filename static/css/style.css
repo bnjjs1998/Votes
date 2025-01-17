@@ -75,6 +75,8 @@ section{
     min-width: inherit;
     margin-top: 1rem;
     width: 100%;
+    text-transform: uppercase;
+    font-weight: 600;
 }
 
 header{
@@ -113,7 +115,7 @@ footer {
 /* ------------------- */
 /* ------------------- */
 /* Login */
-.login{
+.login, .register{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -144,11 +146,11 @@ footer {
     padding: 0 1rem;
 }
 
-.login_wrapper{
+.form_wrapper{
     width: 65%;
     padding: 4rem;
 }
-.login_wrapper h2{
+.form_wrapper h2{
     font-size: var(--secondary-font-size);
     color: var(--blue);
     margin-bottom: 1rem;

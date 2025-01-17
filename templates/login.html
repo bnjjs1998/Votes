@@ -11,21 +11,20 @@
             <h1>Bienvenue sur votre plateforme de vote.</h1>
             <p>Connectez-vous pour accéder à votre tableau de bord.</p>
         </div>
-        <div class="login_wrapper">
+        <div class="form_wrapper">
             <h2>Connexion</h2>
             <form method="POST" action="/login" class="form_container">
                 <div class="input_container">
-                    
                     <label for="email" >Email:</label>
-                    <input id="email" type="email" name="email" placeholder="test@example.com" required><br>
+                    <input id="email" type="email" name="email" placeholder="test@example.com" required>
                 </div>
+
                 <div class="input_container">
-                    
-                    
                     <label for="password" >Password:</label>
-                    <input id="password" type="password" name="password" placeholder="123quatre!" required><br>
+                    <input id="password" type="password" name="password" placeholder="123quatre!" required>
                 </div>
-                <button type="submit" class="button submit_button">Login</button>
+
+                <button type="submit" class="button submit_button">Connexion</button>
             </form>
             
             <p>Pas encore de compte ?<a href="{{ url_for('substriction') }}">Créer un compte</a></p>

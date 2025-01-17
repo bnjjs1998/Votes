@@ -4,21 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscription</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <a href="{{ url_for('login') }}">retour à la connexion</a>
-    <h2>Register</h2>
-    <form action="/register" method="POST">
-        <label for="email">Email :</label>
-        <input type="email" id="email" name="email" required><br><br>
+    <section class="section_container register">
+        <div class="welcome_container">
+            <h1>Bienvenue sur votre plateforme de vote.</h1>
+            <p>Inscrivez-vous et profiter de votre plateforme personnalisée.</p>
+        </div>
 
-        <label for="username">Nom d'utilisateur :</label>
-        <input type="text" id="username" name="username" required><br><br>
-
-        <label for="password">Mot de passe :</label>
-        <input type="password" id="password" name="password" required><br><br>
-
-        <input type="submit" value="S'inscrire">
-    </form>
+        <div class="form_wrapper">
+            <h2>S'inscrire</h2>
+            <form action="/register" method="POST" class="form_container">
+                <div class="input_container">
+                    <label for="email">Email :</label>
+                    <input type="email" id="email" name="email" 
+                    placeholder="test@example.com" required>
+                </div>
+                
+                <div class="input_container">
+                    <label for="username">Nom d'utilisateur :</label>
+                    <input type="text" id="username" name="username"
+                    placeholder="userName54" required>
+                </div>
+                <div class="input_container">
+                    <label for="password">Mot de passe :</label>
+                    <input type="password" id="password" name="password" 
+                    placeholder="123quatre!" required>
+                </div>
+                
+                <button type="submit" class="button submit_button">S'inscrire</button>
+            </form>
+            <p>
+                Déjà inscrit ? <a href="{{ url_for('login') }}">Connectez-vous</a>
+            </p>
+        </div>
+    </section>
 </body>
 </html>
