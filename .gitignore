@@ -1,0 +1,22 @@
+# Ignorer les fichiers de configuration spécifiques à l'IDE
+.vscode/
+.idea/
+
+# Ignorer les fichiers de log
+*.log
+
+# Ignorer les fichiers de compilation
+*.class
+*.o
+*.so
+
+# Ignorer les répertoires de dépendances
+node_modules/
+vendor/
+
+# Ignorer les fichiers de configuration du système d'exploitation
+.DS_Store
+Thumbs.db
+
+# Ignorer les fichiers sensibles
+.env
