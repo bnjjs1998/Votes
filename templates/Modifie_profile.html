@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Modification Profile</title>
+</head>
+<body>
+    <h1>Ici je pourrais modifier le profile actif</h1>
+
+    <div id="informations_user"></div>
+
+    <!-- Formulaire pour modifier l'email -->
+    <form id="form_update_email" method="post">
+        <label for="email_modifie">Nouveau email</label>
+        <input id="email_modifie" type="email" placeholder="Email">
+        <button id="update_email" type="button">Modifier Email</button> <!-- type="button" pour éviter que le formulaire se soumette automatiquement -->
+    </form>
+
+    <form action="/remove_profile">
+        <button>Supprimer</button>*
+    </form>
+
+    <script src="{{ url_for('static', filename='js/Modifie_profile.js') }}"></script>
+</body>
+</html>

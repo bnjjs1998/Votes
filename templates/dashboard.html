@@ -6,14 +6,18 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-
     <header>
         <h1>{{ user }}</h1>
         <div class="menu"  >
-            <h2>Ici sera designer mon futur menu</h2>
             <form action="{{ url_for('logout') }}" method="POST">
                 <button type="submit">Se déconnecter</button>
             </form>
+
+            <form action="/modifie_profile">
+                <button>Modifier mon profil</button>
+            </form>
+
+
             <form action="/counter">
                 <button>Counter</button>
             </form>
@@ -69,15 +73,9 @@
             </div>
         </form>
     </main>
-    <!-- Le Footer-->
-
-    <footer>
-        <h1>Le footer</h1>
-    </footer>
 
 
     <!-- Ici, ça sera l'endroit d'import de mes différents scripts -->
-    <script src="{{ url_for('static', filename='js/random_quest.js') }}"></script>
     <script src="{{ url_for('static', filename='js/quest.js') }}"></script>
 </body>
 </html>
