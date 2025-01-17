@@ -24,14 +24,20 @@
             <form action="{{ url_for('logout') }}" method="POST">
                 <button type="submit" class="button deconnexion">Se déconnecter</button>
             </form>
+            <form action="/the_quest" method="get">
+                <button class="button">The questions</button>
+            </form>
+
         </div>
     </header>
-    <!-- Conditionner cet affichage. (True, sssi on a les droits) -->
-    <form action="/get_allprofile" method="get" >
-        <button>Liste des inscriptions</button>
-    </form>
-    <!--  -->
+
     <main>
+        <br>
+        <!-- Conditionner cet affichage. (True, sssi on a les droits) -->
+        <form action="/get_allprofile" method="get" >
+            <button class="button">Liste des inscriptions</button>
+        </form>
+        <!-- Fin de commentaire -->
     <h1>Bienvenue sur votre tableau de bord, <span class="username" >{{ user }} </span></h1>
     <section class="dashboard">
 
@@ -68,45 +74,21 @@
                     </div>
                     <button type="submit" class="button">Soumettre le sondage</button>
                 </fieldset>
-                
             </form>
         </div>
-        <aside class="aside_main" id="questions-container">
-        
-            <!-- Le formulaire pour poster les réponses des sondages -->
-            <form class="form_div" action="/Post_vote" method="POST">
-                <h2>Quelle est ton plat préféré ?</h2>
-                <div class="Choice">
-                    <label for="choice_1_Input">Classement</label>
-                    <input id="choice_1_Input" name="choice_1_Input" min="1" max="3" type="number" placeholder="choice_1" required>
-                    <p>Epinard</p>
-                </div>
-                <div class="Choice">
-                    <label for="choice_2_Input">Classement</label>
-                    <input id="choice_2_Input" name="choice_2_Input" min="1" max="3" type="number" placeholder="choice_2" required>
-                    <p>Lasagne</p>
-                </div>
-                <div class="Choice">
-                    <label for="choice_3_Input">Classement</label>
-                    <input id="choice_3_Input" name="choice_3_Input" min="1" max="3" type="number" placeholder="choice_3" required>
-                    <p>Bolognaise</p>
-                </div>
-                
-                <button type="submit">Soumettre le vote</button>
-            </form>
-        
-            <div class="generatedQuestions">
+              <aside class="aside_main" id="questions-container">
+                            <div class="generatedQuestions">
                 <h2>Sondages générés</h2>
                 <!-- Les titres des questions seront insérés ici -->
                 <button onclick="generate_questions()" class="button">Générer</button>
             </div>
         </aside>
     </section>
-        
+    </main>
+    <!-- Le Footer-->
     <footer>
             <h2>Le footer</h2>
     </footer>
-    </main>
     <!-- Ici, ça sera l'endroit d'import de mes différents scripts -->
     <script src="{{ url_for('static', filename='js/random_quest.js') }}"></script>
     <script src="{{ url_for('static', filename='js/quest.js') }}"></script>

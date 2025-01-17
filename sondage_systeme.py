@@ -1,9 +1,12 @@
+from unittest import result
+
 from flask import request, jsonify
 from flask_login import login_required
 from app import *
 from app import app
 from app import mongo
 from systeme_log import *
+from bson.objectid import ObjectId
 
 @app.route('/Post_sondage', methods=['POST'])
 @login_required
@@ -46,28 +49,84 @@ def post_sondage():
 @app.route('/Post_vote', methods=['POST'])
 @login_required
 def post_vote():
-    try:
-        data = request.get_json()
-        print('Donnée reçue:', data)
-        title_question = data.get('title_question')
-        print(f"Titre de la question : {title_question}")
+    # Récupérer les données envoyées par le frontend
+    data = request.get_json()
+    print('Donnée reçue:', data)
 
-        # Vérifier si 'choices' est bien présent
-        choices_data = data.get('choices', {})
-        print(f"Choix reçus : {choices_data}")
+    # Extraire et nettoyer les données
+    _id_question = data.get('_id')
+    title_question = data.get('title_question')
+    choices_data = data.get('choices', {})
+    print(f"ID question : {_id_question}, Choix reçus : {choices_data}")
 
-        for choice in choices_data:
-            print(f"Choix : {choice}")
+    # Préparer l'objet à ajouter dans mes_classement
+    classement = {
+        "_id_question": _id_question,
+        "title": title_question,
+        "choices": choices_data,
+    }
 
-        return jsonify({
-            "status_code": 200,
-            "message": "Réponses reçues et traitées",
-            "choices": choices_data
-        })
+    # Vérifier si cette question a déjà été votée
+    already_voted = mongo.db.users.find_one(
+        {
+            "_id": current_user.id,
+            "mes_classement.title": title_question
+        }
+    )
+    if already_voted:
+        return jsonify(
+            {
+                "status": 400,
+                "error": "La question a déjà été votée."
+            }
+        ), 400
+    else:
+        # Ajouter le classement dans "mes_classement" pour l'utilisateur
+        mongo.db.users.find_one_and_update(
+            {"_id": current_user.id},
+            {"$push": {"mes_classement": classement}},
+            return_document=True
+        )
 
-    except Exception as e:
-        print(f"Erreur : {e}")
-        return jsonify({
-            "status_code": 500,
-            "message": f"Erreur lors du traitement des votes: {e}"
-        }), 500
+        # Initialisation des compteurs pour chaque rangnnn
+        resultat_3 = 0
+        resultat_2 = 0
+        resultat_1 = 0
+
+        # Structure des résultats des votes
+        votes_result_data = {
+            "_id": ObjectId(_id_question),
+            "title_question": title_question,
+            "result_votes": {}  # Initialisation de l'objet 'choices'
+        }
+
+        # Parcours de chaque choix et de son rang
+        for clef, rank in choices_data.items():
+            print('Les clefs sont:', clef)
+            # Incrémentation des résultats
+            if rank == 1:
+                resultat_3 += 1
+                votes_result_data["result_votes"][clef] = resultat_3
+            elif rank == 2:
+                resultat_2 += 2  # 2 points pour le rang 2
+                votes_result_data["result_votes"][clef] = resultat_2
+            elif rank == 3:
+                resultat_1 += 3  # 3 points pour le rang 3
+                votes_result_data["result_votes"][clef] = resultat_1
+
+        # Mise à jour des résultats dans MongoDB pour la question
+        mongo.db.questions.update_one(
+            {"_id": ObjectId(_id_question)},  # Filtrage sur l'ID de la question
+            {"$set": votes_result_data}  # Mise à jour des résultats de votes
+        )
+
+        return jsonify(
+            {
+                "status": 200,
+                "message": "Vote enregistré avec succès."
+            }
+        ), 200
+
+
+
+
