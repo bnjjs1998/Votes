@@ -9,6 +9,7 @@
     <header>
         <h1>{{ user }}</h1>
         <div class="menu"  >
+
             <form action="{{ url_for('logout') }}" method="POST">
                 <button type="submit">Se déconnecter</button>
             </form>
@@ -24,17 +25,14 @@
             <form action="/profile">
                 <button>Profile</button>
             </form>
-            <form action="/my_questions" method="get">
+
+            <form action="/templte_my_questions" method="get">
                 <button>My Question</button>
             </form>
+
             <form action="/get_questions" method="get">
                 <button> All questions</button>
             </form>
-
-            <form action="/the_quest" method="get">
-                <button>The questions</button>
-            </form>
-
         </div>
     </header>
 
