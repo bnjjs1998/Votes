@@ -1,5 +1,5 @@
 ## Setup
-1. Clone the repository:
+1. Cloner le repertoire:
    ```bash
    git clone https://github.com/your-repo/project.git
    cd project
