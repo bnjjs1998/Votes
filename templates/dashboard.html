@@ -21,11 +21,11 @@
             <form action="/counter">
                 <button class="button">Counter</button>
             </form>
-            <form action="{{ url_for('logout') }}" method="POST">
-                <button type="submit" class="button deconnexion">Se déconnecter</button>
-            </form>
             <form action="/the_quest" method="get">
                 <button class="button">The questions</button>
+            </form>
+            <form action="{{ url_for('logout') }}" method="POST">
+                <button type="submit" class="button deconnexion">Se déconnecter</button>
             </form>
 
         </div>
