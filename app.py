@@ -6,13 +6,19 @@ from flask_bcrypt import Bcrypt
 import uuid
 from pymongo import ReturnDocument
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"  # Changez cette clé pour sécuriser votre application
+# app.secret_key = "supersecretkey"  # Changez cette clé pour sécuriser votre application
+app.secret_key = os.getenv("SECRET_KEY")
 
 # Configuration MongoDB
-app.config["MONGO_URI"] = "mongodb://localhost:27017/mydb"
+# app.config["MONGO_URI"] = "mongodb://localhost:27017/mydb"
+app.config["MONGO_URI"] = os.getenv("MONGO_URI")
 mongo = PyMongo(app)
 bcrypt = Bcrypt(app)
 
