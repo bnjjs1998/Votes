@@ -1,7 +1,7 @@
 ## Setup
 1. Cloner le repertoire:
    ```bash
-   git clone https://github.com/your-repo/project.git
+   git clone https://github.com/bnjjs1998/Votes.git
    cd project
    ```
 
