@@ -31,7 +31,7 @@ def me():
 
 
 @app.route("/substcription", methods=["GET", "POST"])
-def substriction():
+def subscription():
     return render_template('register.html')
 
 
