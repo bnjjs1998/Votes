@@ -18,5 +18,16 @@ vendor/
 .DS_Store
 Thumbs.db
 
-# Ignorer les fichiers sensibles
+# Environnement virtuel
+env/
+
+# Fichiers sensibles
 .env
+
+# Fichiers générés
+*.pyc
+__pycache__/
+
+# Données locales
+data/
+mongod.log
