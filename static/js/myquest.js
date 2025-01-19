@@ -8,10 +8,10 @@ fetch('/get_sondage_current_id', {
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    return response.json(); // Assurez-vous que la réponse est bien en JSON
+    return response.json();
 })
 .then(data => {
-    console.log("Données reçues:", data); // Affichez la réponse pour vérifier sa structure
+    console.log("Données reçues:", data);
     const container = document.getElementById('my_quest');
     container.innerHTML = ""; // Nettoyage du conteneur avant d'ajouter le contenu
 
@@ -32,7 +32,7 @@ fetch('/get_sondage_current_id', {
             // Formulaire pour modifier le titre
             const titleForm = document.createElement('form');
             titleForm.setAttribute('method', 'POST');
-            titleForm.setAttribute('action', '/update_title');  // Action pour la mise à jour du titre
+            titleForm.setAttribute('action', '/update_title');
 
             const titleDiv = document.createElement('div');
             titleDiv.classList.add('modifie_title');
@@ -93,7 +93,7 @@ fetch('/get_sondage_current_id', {
 
             const choiceForm = document.createElement('form');
             choiceForm.setAttribute('method', 'POST');
-            choiceForm.setAttribute('action', '/update_choices'); // Action pour la mise à jour des choix
+            choiceForm.setAttribute('action', '/update_choices');
 
             const choiceInputs = [];
 
@@ -138,13 +138,13 @@ fetch('/get_sondage_current_id', {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        sondage_id: question._id,  // ID du sondage
-                        new_choices: question.choices  // Liste des nouveaux choix
+                        sondage_id: question._id,
+                        new_choices: question.choices
                     })
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.succes) {
+                    if (data.success) {
                         console.log("Les choix ont été mis à jour avec succès.");
                         console.log("Nouveaux choix:", data.updated_choices);
                     } else {
@@ -177,29 +177,25 @@ fetch('/get_sondage_current_id', {
                 })
                 .then(response => response.json())
                 .then(data => {
-                    console.log("hello");
+                    console.log("Sondage supprimé");
                 })
                 .catch(error => {
                     console.error("Erreur lors de la requête de suppression:", error);
                 });
             });
 
+            btnSection.appendChild(deleteButton);
 
-            btnSection.appendChild(deleteButton);           // Bouton de suppression
-
-            // Bouton pour blocker les votes et procédé au résultat
+            // Bouton pour bloquer les votes
             const BlockButton = document.createElement('button');
             BlockButton.textContent = 'Block Vote';
             BlockButton.setAttribute('type', 'button');
 
             const answer = {
-                "Status_Sondage":"Block"
-            }
+                "Status_Sondage": "Block"
+            };
 
             BlockButton.addEventListener('click', function () {
-
-                //en gros, je vais envoyer un jeu de donnée
-
                 fetch('/Block_btn', {
                     method: 'POST',
                     headers: {
@@ -208,33 +204,36 @@ fetch('/get_sondage_current_id', {
                     body: JSON.stringify({
                         sondage_id: question._id,
                         question_title: question.title_question,
-                        choices: question.choices
+                        choices: question.choices,
+                        status_sondage: answer.Status_Sondage
                     })
                 })
                 .then(response => response.json())
                 .then(data => {
+                    console.log("Sondage bloqué");
                 })
                 .catch(error => {
-                    console.error("Erreur lors de la requête de suppression:", error);
+                    console.error("Erreur lors de la requête de blocage:", error);
                 });
             });
+
             btnSection.appendChild(BlockButton);
 
-            // Bouton pour basculer entre Privé et Public
+            // Variables pour les états de confidentialité
+            const public_state = 'Passer en privé';
+            const private_state = 'Passer en public';
+
+            // Créer le bouton pour basculer l'état
             const togglePrivacyButton = document.createElement('button');
-            togglePrivacyButton.textContent = question.isPrivate ? 'Passer en public' : 'Passer en privé'; // Texte initial basé sur l'état
+            togglePrivacyButton.textContent = question.privacy === 'public' ? public_state : private_state;
             togglePrivacyButton.setAttribute('type', 'button');
+            togglePrivacyButton.style.marginTop = '10px';
 
-
-            // Écouteur d'événement pour basculer l'état
             togglePrivacyButton.addEventListener('click', function () {
-                // Basculer l'état localement
-                question.isPrivate = !question.isPrivate;
+                const newPrivacy = question.privacy === 'public' ? 'private' : 'public';
+                question.privacy = newPrivacy;
+                togglePrivacyButton.textContent = newPrivacy === 'public' ? public_state : private_state;
 
-                // Mettre à jour le texte du bouton en fonction du nouvel état
-                togglePrivacyButton.textContent = question.isPrivate ? 'Passer en public' : 'Passer en privé';
-
-                // Envoyer la mise à jour de l'état au serveur
                 fetch('/Change_state_btn', {
                     method: 'POST',
                     headers: {
@@ -243,29 +242,26 @@ fetch('/get_sondage_current_id', {
                     body: JSON.stringify({
                         sondage_id: question._id,
                         question_title: question.title_question,
-                        choices: question.choices
+                        choices: question.choices,
+                        isPrivate: newPrivacy === 'private'
                     })
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        console.log(`L'état du sondage a été mis à jour : ${question.isPrivate ? 'Privé' : 'Public'}`);
+                        console.log(`État changé avec succès : ${newPrivacy === 'private' ? 'Privé' : 'Public'}`);
                     } else {
-                        console.error('Échec de la mise à jour de l’état du sondage.');
+                        console.error('Échec lors de la mise à jour de l’état.');
                     }
                 })
                 .catch(error => {
-                    console.error("Erreur lors de la mise à jour de l'état de confidentialité :", error);
+                    console.error("Erreur lors de l'envoi des données au serveur :", error);
                 });
             });
 
-            // Ajouter le bouton à la section des boutons
             btnSection.appendChild(togglePrivacyButton);
 
-
-
             sondageDiv.appendChild(btnSection);
-
             container.appendChild(sondageDiv);
         });
     } else {

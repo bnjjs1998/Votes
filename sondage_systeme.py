@@ -40,11 +40,6 @@ def post_sondage():
         {"_id": current_user.id},
         {"$push": {"Mes sondages": my_sondage_data}}
     )
-
-    #On va définir un délais de réponse de l'ulisateurs
-
-
-    result_in_question = mongo.db.questions.insert_one(sondage_data)
     return jsonify(
         {
             "test": "success",
@@ -75,12 +70,33 @@ def post_vote():
         "has_voted": has_voted,
     }
 
-    # Vérifier si cette question a déjà été votée
-    mongo.db.users.find_one_and_update(
-        {"_id": current_user.id},
-        {"$push": {"mes_classement": classement}},
-        return_document=True
-    )
+    # Vérifier si l'utilisateur a déjà voté pour cette question
+    user = mongo.db.users.find_one({"_id": current_user.id})
+    existing_vote = None
+
+    if user:
+        # Chercher un vote existant pour cette question dans 'mes_classement'
+        existing_vote = next((vote for vote in user.get('mes_classement', []) if vote["_id_question"] == _id_question), None)
+
+    if existing_vote:
+        # Si un vote existe déjà, mettre à jour ce vote
+        mongo.db.users.update_one(
+            {"_id": current_user.id, "mes_classement._id_question": _id_question},
+            {
+                "$set": {
+                    "mes_classement.$.choices": choices_data,
+                    "mes_classement.$.has_voted": has_voted
+                }
+            }
+        )
+        print("Vote mis à jour")
+    else:
+        # Si aucun vote n'existe pour cette question, l'ajouter
+        mongo.db.users.update_one(
+            {"_id": current_user.id},
+            {"$push": {"mes_classement": classement}}
+        )
+        print("Nouveau vote ajouté")
 
     # Initialisation des compteurs pour chaque rang
     resultat_1 = 0
@@ -120,6 +136,3 @@ def post_vote():
             "message": "Vote enregistré avec succès."
         }
     ), 200
-
-
-

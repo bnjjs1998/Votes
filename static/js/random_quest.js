@@ -1,14 +1,16 @@
 fetch('/get_questions', {
     method: 'GET',
 })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Erreur de récupération des questions');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Données reçues:', data);
+.then(response => {
+    if (!response.ok) {
+        throw new Error('Erreur de récupération des questions');
+    }
+    return response.json();
+})
+.then(data => {
+    console.log('Données reçues:', data);  // Vérifiez les données
+    if (data && Array.isArray(data.questions)) {  // Vérification explicite que questions est un tableau
+        console.log('Questions:', data.questions);
         const questionsContainer = document.getElementById('questions-container');
 
         data.questions.forEach(question => {
@@ -17,58 +19,49 @@ fetch('/get_questions', {
             questionForm.setAttribute('action', '/Post_vote');
 
             const title = document.createElement('h2');
-            title.textContent = question.title_question;
+            title.textContent = question['Title Question'];  // Accédez à "Title Question"
             questionForm.appendChild(title);
 
             // Dictionnaire pour stocker les réponses
             const answers = {
                 _id: question._id,
-                title_question: question.title_question,
+                title_question: question['Title Question'],  // Assurez-vous que le titre est correctement récupéré
                 choices: {},
-                has_voted: true // Assurez-vous que has_voted est récupéré correctement
+                has_voted: true
             };
 
-            // Parcours des choix dans la question
-            question.choices.forEach((choice, index) => {
+            // Vérifiez si 'choices' existe avant de le parcourir
+            if (Array.isArray(question.Choix)) {
+                question.Choix.forEach((choice, index) => {
+                    const label = document.createElement('label');
+                    label.setAttribute('for', `choice${question._id}_${index}`);
+                    label.textContent = `Option ${choice} :`;
 
-                // Création des différents labels pour l'input
-                const label = document.createElement('label');
-                label.setAttribute('for', `choice${question._id}_${index}`);
-                label.textContent = `Option ${choice} :`;
+                    const input = document.createElement('input');
+                    input.setAttribute('id', `choice${question._id}_${index}`);
+                    input.setAttribute('type', 'number');
+                    input.setAttribute('name', `question${question._id}`);
+                    input.setAttribute('placeholder', 'Classer votre préférence');
+                    input.setAttribute('min', '1');
+                    input.setAttribute('max', '3');
+                    input.value = '0';
 
-                // Création de l'input en fonction de ce qu'il trouve dans le document Mongo
-                const input = document.createElement('input');
-                input.setAttribute('id', `choice${question._id}_${index}`);
-                input.setAttribute('type', 'number');
-                input.setAttribute('name', `question${question._id}`);
-                input.setAttribute('placeholder', 'Classer votre préférence');
-                input.setAttribute('min', '1');
-                input.setAttribute('max', '3');
-                input.value = '0';
+                    input.addEventListener('change', function () {
+                        answers.choices[choice] = parseInt(input.value, 10);  // Enregistre chaque choix avec son score
+                    });
 
-                // Mise à jour des réponses
-                input.addEventListener('change', function () {
-                    answers.choices[choice] = parseInt(input.value, 10);  // Enregistre chaque choix avec son score
+                    questionForm.appendChild(label);
+                    questionForm.appendChild(input);
                 });
-
-                questionForm.appendChild(label);
-                questionForm.appendChild(input);
-            });
+            }
 
             const buttonPostVote = document.createElement('button');
             buttonPostVote.textContent = 'Vote';
-            buttonPostVote.setAttribute('type', 'submit')
+            buttonPostVote.setAttribute('type', 'submit');
             questionForm.appendChild(buttonPostVote);
 
-
-
-
-
-
-            // Gestion de la soumission du formulaire
             questionForm.addEventListener('submit', function (event) {
                 event.preventDefault();
-
 
                 console.log('Réponses collectées:', answers);
                 fetch('/Post_vote', {
@@ -78,18 +71,21 @@ fetch('/get_questions', {
                     },
                     body: JSON.stringify(answers),  // Envoi du dictionnaire de réponses
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Réponse du serveur:', data);
-                    })
-                    .catch(error => {
-                        console.error('Erreur lors de l\'envoi des données:', error);
-                    });
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Réponse du serveur:', data);
+                })
+                .catch(error => {
+                    console.error('Erreur lors de l\'envoi des données:', error);
+                });
             });
 
             questionsContainer.appendChild(questionForm);
         });
-    })
-    .catch(error => {
-        console.error('Erreur de récupération des questions:', error);
-    });
+    } else {
+        console.error('Les questions ne sont pas disponibles ou la clé "questions" est incorrecte');
+    }
+})
+.catch(error => {
+    console.error('Erreur de récupération des questions:', error);
+});
