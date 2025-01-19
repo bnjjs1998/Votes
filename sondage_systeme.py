@@ -1,12 +1,13 @@
 from unittest import result
 
 from flask import request, jsonify
-from flask_login import login_required
+from flask_login import login_required, current_user
 from app import *
 from app import app
 from app import mongo
 from systeme_log import *
 from bson.objectid import ObjectId
+from datetime import datetime
 
 @app.route('/Post_sondage', methods=['POST'])
 @login_required
@@ -14,19 +15,38 @@ def post_sondage():
     # je récupère les datas du formulaire
     title = request.form['quest_title']
     choices = request.form.getlist('questions[0][choices][]')
+    expiration_date_str = request.form.get('expiration_date')
+    if not expiration_date_str:
+        return jsonify({"status": 400, "error": "La date d'expiration est obligatoire."}), 400
+    def parse_date(date_str):
+        formats = ['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S']
+        for fmt in formats:
+            try:
+                return datetime.strptime(date_str, fmt)
+            except ValueError:
+                continue
+        return None
+
+    expiration_date = parse_date(expiration_date_str)
+    if not expiration_date:
+        return jsonify({"status": 400, "error": "Format de la date d'expiration invalide."}), 400
+
     print(f"Titre du sondage: {title}")
     print(f"Choix de réponses: {choices}")
+    print(f"Date d'expiration: {expiration_date}")
 
     #Une fois récupère, je crée un jeu de donnée pour préparer la requete sur la collection question global
     sondage_data = {
         "title_question": title,
         "choices": choices,
-        "Créateur" : current_user.username,
+        "creator" : current_user.username,
+        "expiration_date": expiration_date
     }
     #jeux de donnée pour la session de l'utilisateur
     my_sondage_data = {
         "title_question": title,
         "choices": choices,
+        "expiration_date": expiration_date
     }
 
     #insertions du jeu de donnée dans la collection users
@@ -42,6 +62,7 @@ def post_sondage():
             "test": "success",
             "titre_question": title,
             "choices": choices,
+            "expiration_date": expiration_date.strftime('%Y-%m-%d %H:%M:%S'),
         }
     )
 
@@ -58,6 +79,17 @@ def post_vote():
     title_question = data.get('title_question')
     choices_data = data.get('choices', {})
     print(f"ID question : {_id_question}, Choix reçus : {choices_data}")
+
+    # Récupérer le sondage depuis MongoDB
+    sondage = mongo.db.questions.find_one({"_id": ObjectId(_id_question)})
+
+    if not sondage:
+        return jsonify({"status": 404, "error": "Sondage introuvable."}), 404
+
+    # Vérifier si le sondage existe et est encore valide
+    expiration_date = sondage.get('expiration_date')
+    if expiration_date and datetime.now() > expiration_date:
+        return jsonify({"status": 400, "error": "Le sondage est expiré."}), 400
 
     # Préparer l'objet à ajouter dans mes_classement
     classement = {
