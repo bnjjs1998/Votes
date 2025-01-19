@@ -42,7 +42,7 @@
     <section class="dashboard">
 
         <div class="newFormVote_container">
-            <form action="/Post_sondage" method="post" class="form_container">
+            <form action="/Post_sondage" method="post" class="form_container" id="newFormVote">
                 <h2>Ajouter un sondage</h2>
                 
                 <!-- Titre du sondage -->
@@ -71,13 +71,18 @@
                             <label for="choice3">Choix 3</label>
                             <input id="choice3" class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 3" required>
                         </div>
+                        <div class="input_container">
+
+                            <label for="expiration_date">Date d'expiration :</label>
+                            <input type="datetime-local" id="expiration_date" name="expiration_date" required>
+                        </div>
                     </div>
-                    <button type="submit" class="button">Soumettre le sondage</button>
+                    <button type="submit" class="button" id="submit_button">Soumettre le sondage</button>
                 </fieldset>
             </form>
         </div>
-              <aside class="aside_main" id="questions-container">
-                            <div class="generatedQuestions">
+        <aside class="aside_main" id="questions-container">
+            <div class="generatedQuestions">
                 <h2>Sondages générés</h2>
                 <!-- Les titres des questions seront insérés ici -->
                 <button onclick="generate_questions()" class="button">Générer</button>

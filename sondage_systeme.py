@@ -15,6 +15,7 @@ def post_sondage():
     # je récupère les datas du formulaire
     title = request.form['quest_title']
     choices = request.form.getlist('questions[0][choices][]')
+    # on initalise la date d'expiration
     expiration_date_str = request.form.get('expiration_date')
     if not expiration_date_str:
         return jsonify({"status": 400, "error": "La date d'expiration est obligatoire."}), 400
@@ -30,6 +31,10 @@ def post_sondage():
     expiration_date = parse_date(expiration_date_str)
     if not expiration_date:
         return jsonify({"status": 400, "error": "Format de la date d'expiration invalide."}), 400
+
+    # Vérifier si la date d'expiration est dans le passé
+    if expiration_date <= datetime.now():
+        return jsonify({"status": 400, "error": "La date d'expiration doit être dans le futur."}), 400
 
     print(f"Titre du sondage: {title}")
     print(f"Choix de réponses: {choices}")
@@ -59,12 +64,13 @@ def post_sondage():
     result_in_question = mongo.db.questions.insert_one(sondage_data)
     return jsonify(
         {
-            "test": "success",
+            "status": "success",
             "titre_question": title,
             "choices": choices,
             "expiration_date": expiration_date.strftime('%Y-%m-%d %H:%M:%S'),
+            "message": "Sondage créé avec succès."
         }
-    )
+    ), 200
 
 
 @app.route('/Post_vote', methods=['POST'])

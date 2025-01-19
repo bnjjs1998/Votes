@@ -87,3 +87,34 @@ fetch('/get_questions', {
     .catch(error => {
         console.error('Erreur de récupération des questions:', error);
     });
+
+document.getElementById("submit_button").addEventListener("click", async function (event) {
+    event.preventDefault();    
+    const formData = new FormData(document.getElementById("newFormVote")); 
+    try {
+        const response = await fetch("/Post_sondage", {
+            method: "POST",
+            body: formData,
+        });
+        const result = await response.json();
+        if (response.ok) {
+            alert(result.message); // Affiche l'alerte Windows avec le message du serveur
+            // refreshQuestionsContainer(); // Actualise le  après que l'utilisateur ferme l'alerte
+            location.reload();
+        } else {
+            alert(`Erreur : ${result.error}`);
+        }
+    } catch (error) {
+        alert("Une erreur est survenue. Veuillez réessayer.");
+    }
+});
+
+function refreshQuestionsContainer() {
+    fetch("/get_questions") // Mettez l'URL pour récupérer les questions à jour
+        .then(response => response.text())
+        .then(html => {
+            console.log("Nouveau contenu des questions :", html);
+            document.getElementById("questions-container").innerHTML = html;
+        })
+        .catch(error => console.error("Erreur lors de la mise à jour :", error));
+}
