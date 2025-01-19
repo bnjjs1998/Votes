@@ -9,11 +9,11 @@ fetch('/get_questions', {
 })
 .then(data => {
     console.log('Données reçues:', data);  // Vérifiez les données
-    if (data && Array.isArray(data.questions)) {  // Vérification explicite que questions est un tableau
-        console.log('Questions:', data.questions);
+    if (Array.isArray(data)) {  // Vérification que la réponse est un tableau
+        console.log('Questions:', data);
         const questionsContainer = document.getElementById('questions-container');
 
-        data.questions.forEach(question => {
+        data.forEach(question => {
             const questionForm = document.createElement('form');
             questionForm.setAttribute('method', 'POST');
             questionForm.setAttribute('action', '/Post_vote');
@@ -24,13 +24,13 @@ fetch('/get_questions', {
 
             // Dictionnaire pour stocker les réponses
             const answers = {
-                _id: question._id,
-                title_question: question['Title Question'],  // Assurez-vous que le titre est correctement récupéré
-                choices: {},
-                has_voted: true
+                _id: question._id,  // Identifiant de la question
+                title_question: question['Title Question'],  // Titre de la question
+                choices: {},  // Choix de réponse
+                has_voted: true  // Indicateur de vote
             };
 
-            // Vérifiez si 'choices' existe avant de le parcourir
+            // Vérifiez si "Choix" existe avant de le parcourir
             if (Array.isArray(question.Choix)) {
                 question.Choix.forEach((choice, index) => {
                     const label = document.createElement('label');
@@ -83,7 +83,7 @@ fetch('/get_questions', {
             questionsContainer.appendChild(questionForm);
         });
     } else {
-        console.error('Les questions ne sont pas disponibles ou la clé "questions" est incorrecte');
+        console.error('Les questions ne sont pas disponibles');
     }
 })
 .catch(error => {

@@ -56,15 +56,13 @@ def post_vote():
     print('Donnée reçue:', data)
 
     # Extraire et nettoyer les données
-    _id_question = data.get('_id')
     title_question = data.get('title_question')
     choices_data = data.get('choices', {})
     has_voted = data.get('has_voted')
-    print(f"ID question : {_id_question}, Choix reçus : {choices_data}")
+    print(f"Question : {title_question}, Choix reçus : {choices_data}")
 
     # Préparer l'objet à ajouter dans mes_classement
     classement = {
-        "_id_question": _id_question,
         "title": title_question,
         "choices": choices_data,
         "has_voted": has_voted,
@@ -76,12 +74,12 @@ def post_vote():
 
     if user:
         # Chercher un vote existant pour cette question dans 'mes_classement'
-        existing_vote = next((vote for vote in user.get('mes_classement', []) if vote["_id_question"] == _id_question), None)
+        existing_vote = next((vote for vote in user.get('mes_classement', []) if vote["title"] == title_question), None)
 
     if existing_vote:
         # Si un vote existe déjà, mettre à jour ce vote
         mongo.db.users.update_one(
-            {"_id": current_user.id, "mes_classement._id_question": _id_question},
+            {"_id": current_user.id, "mes_classement.title": title_question},
             {
                 "$set": {
                     "mes_classement.$.choices": choices_data,
@@ -105,7 +103,6 @@ def post_vote():
 
     # Structure des résultats des votes
     votes_result_data = {
-        "_id": ObjectId(_id_question),
         "title_question": title_question,
         "result_votes": {}  # Initialisation de l'objet 'choices'
     }
@@ -124,15 +121,20 @@ def post_vote():
             resultat_1 += 3  # 3 points pour le rang 1
             votes_result_data["result_votes"][clef] = resultat_1
 
-    # Mise à jour des résultats dans MongoDB pour la question
-    mongo.db.questions.update_one(
-        {"_id": ObjectId(_id_question)},  # Filtrage sur l'ID de la question
-        {"$set": votes_result_data}  # Mise à jour des résultats de votes
+    # Mise à jour des résultats dans la collection 'questions' en utilisant 'title_question'
+    result_update = mongo.db.questions.update_one(
+        {"title_question": title_question},  # Recherche de la question par son titre
+        {"$set": {"Résultat": votes_result_data}}  # Mise à jour de la clé 'Résultat'
     )
+
+    if result_update.matched_count > 0:
+        print("Résultats mis à jour dans la collection 'questions'.")
+    else:
+        print(f"Aucune question trouvée avec le titre : {title_question}")
 
     return jsonify(
         {
             "status": 200,
-            "message": "Vote enregistré avec succès."
+            "message": "Vote enregistré et résultats mis à jour avec succès."
         }
     ), 200
