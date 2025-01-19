@@ -55,33 +55,65 @@ def delete_btn():
         "success": True
     })
 
+
+
+
+
 @app.route('/Change_state_btn', methods=['POST'])
 def change_state_btn():
+    # Récupérer les données envoyées par le client
     data = request.get_json()
-    title_quest = data.get('title_question')
+    title_quest = data.get('question_title')
     state = data.get('privacy')
 
-    print(data)
-    print(state)
+    print(f"Données reçues : {data}")
+    print(f"État demandé : {state}")
 
-    # Validation et gestion des cas
+    # Vérifier que le champ 'title_question' est présent
+    if not title_quest:
+        return jsonify({
+            "status": 400,
+            "message": "Le champ 'question_title' est requis."
+        }), 400
+
+    # Gestion des états 'private' et 'public'
     if state == "private":
-        print('Le sondage est passé en privé')
-        print(state)
-        # Suppression du document correspondant
-        result_req = mongo.db.questions.delete_one({"title_quest": title_quest})
+        print(f"Le sondage '{title_quest}' est passé en privé.")
+        # Supprimer le document correspondant
+        delete_result = mongo.db.questions.delete_one({"title_question": title_quest})
+
+        if delete_result.deleted_count > 0:
+            print(f"Le sondage '{title_quest}' a été supprimé avec succès.")
+        else:
+            print(f"Aucun sondage trouvé avec le titre '{title_quest}'. Rien à supprimer.")
 
     elif state == "public":
-        print('Le sondage est passé en public')
-        print(state)
-        # Mise à jour ou insertion du document
-        mongo.db.questions.update_one(
-            {"title_quest": title_quest},  # Critère pour trouver le document
-            {"$set": data},               # Données à insérer ou mettre à jour
-            upsert=True                   # Crée le document si aucun ne correspond
-        )
+        print(f"Le sondage '{title_quest}' est passé en public.")
+        # Vérifier si le document existe déjà
+        existing_question = mongo.db.questions.find_one({"title_question": title_quest})
+
+        if existing_question:
+            print(f"Le sondage '{title_quest}' existe déjà. Mise à jour de l'état.")
+            mongo.db.questions.update_one(
+                {"title_question": title_quest},
+                {"$set": {"privacy": "public"}}
+            )
+        else:
+            print(f"Le sondage '{title_quest}' n'existe pas. Création du document.")
+            mongo.db.questions.insert_one({
+                "title_question": title_quest,
+                "choices": data.get("choices", []),
+                "privacy": "public"
+            })
 
     else:
         print("État inconnu. Aucune action effectuée.")
+        return jsonify({
+            "status": 400,
+            "message": "L'état spécifié est inconnu."
+        }), 400
 
-    return jsonify({"message": "Données reçues", "data": data}), 200
+    return jsonify({
+        "status": 200,
+        "message": f"L'état du sondage '{title_quest}' a été modifié avec succès."
+    }), 200
