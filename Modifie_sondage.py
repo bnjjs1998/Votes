@@ -102,7 +102,7 @@ def change_state_btn():
             print(f"Le sondage '{title_quest}' n'existe pas. Création du document.")
             mongo.db.questions.insert_one({
                 "title_question": title_quest,
-                "choices": data.get("choices", []),
+                "choices_label": data.get("choices", []),
                 "privacy": "public"
             })
 

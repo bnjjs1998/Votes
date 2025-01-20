@@ -18,6 +18,7 @@ def the_quest():
 @app.route('/get_questions', methods=['GET'])
 def get_questions():
     questions = mongo.db.questions.find()  # Récupère toutes les questions de la collection
+    print(questions)
 
     # Créer une liste sans les _id
     questions_data = []

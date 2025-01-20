@@ -1,104 +1,95 @@
-// Fonction principale pour récupérer les questions depuis l'API
+// Récupération des questions via l'API
 fetch('/get_questions', {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' }
 })
     .then(response => {
         if (!response.ok) {
-            throw new Error(`Erreur ${response.status}: Impossible de récupérer les questions.`);
+            throw new Error('Erreur lors de la récupération des questions');
         }
         return response.json();
     })
     .then(data => {
-        console.log('Données brutes reçues depuis l\'API:', data);
-
+        console.log(data);
         const questionsContainer = document.getElementById('questions-container');
-        questionsContainer.innerHTML = ''; // Nettoyer le conteneur avant d'ajouter les questions
+        questionsContainer.innerHTML = ''; // Réinitialiser le conteneur
 
-        // Vérifiez que les données sont un tableau
-        if (Array.isArray(data)) {
-            data.forEach((question, index) => {
-                console.log(`Traitement de la question ${index + 1}:`, question);
-
-                if (!question.title_question) {
-                    console.warn(`Question ${index + 1} ignorée: titre manquant.`);
-                    return;
-                }
-
-                // Création du formulaire pour la question
-                const questionForm = createQuestionForm(question);
-                questionsContainer.appendChild(questionForm);
-            });
-        } else {
-            console.error('Les données reçues ne sont pas un tableau.');
-            showError(questionsContainer, 'Les données reçues sont invalides. Veuillez réessayer plus tard.');
-        }
+        // Créer des formulaires pour chaque question
+        data.forEach(question => {
+            const questionForm = createQuestionForm(question);
+            questionsContainer.appendChild(questionForm);
+        });
     })
     .catch(error => {
         console.error('Erreur lors de la récupération des questions:', error.message);
         const questionsContainer = document.getElementById('questions-container');
-        showError(questionsContainer, 'Une erreur s\'est produite lors du chargement des questions. Veuillez vérifier votre connexion ou réessayer plus tard.');
+        questionsContainer.innerHTML = `
+            <div style="color: red; font-weight: bold;">
+                Une erreur est survenue lors du chargement des questions. Veuillez réessayer plus tard.
+            </div>`;
     });
-
-// Fonction pour afficher un message d'erreur dans le DOM
-function showError(container, message) {
-    container.innerHTML = `
-        <div style="color: red; font-weight: bold; margin: 20px;">
-            ${message}
-        </div>
-    `;
-}
 
 // Fonction pour créer un formulaire pour une question
 function createQuestionForm(question) {
     const questionForm = document.createElement('form');
     questionForm.classList.add('question-form');
     questionForm.setAttribute('method', 'POST');
-    questionForm.setAttribute('action', '/Post_vote');
+    questionForm.setAttribute('action', '/Vote');
 
-    // Ajout du titre de la question
+    // Titre de la question
     const title = document.createElement('h2');
-    title.textContent = question.title_question;
+    title.textContent = question.title_question || 'Titre non disponible';
     questionForm.appendChild(title);
 
-    // Initialisation des réponses
+    // Ajout d'informations de confidentialité
+    if (question.privacy) {
+        const privacyInfo = document.createElement('p');
+        privacyInfo.textContent = `Confidentialité : ${question.privacy}`;
+        privacyInfo.classList.add('privacy-info');
+        questionForm.appendChild(privacyInfo);
+    }
+
+    // Objet pour stocker les réponses de l'utilisateur
     const answers = {
         _id: question._id,
         question_title: question.title_question,
-        choices: {},
-        has_voted: true,
-        privacy: question.privacy || 'unknown'
+        choices: {}
     };
 
-    // Création des choix de réponse
-    if (Array.isArray(question.choices)) {
+    // Prendre en compte les votes existants
+    const userVote = question.user_vote || {};
+
+    // Création des choix de la question
+    if (question.choices_label && Array.isArray(question.choices_label)) {
         const choiceContainer = document.createElement('div');
         choiceContainer.classList.add('choice-container');
 
-        question.choices.forEach((choice, index) => {
+        question.choices_label.forEach((choiceLabel, index) => {
             const choiceWrapper = document.createElement('div');
             choiceWrapper.classList.add('choice-wrapper');
 
+            // Label pour chaque choix
             const label = document.createElement('label');
-            label.setAttribute('for', `choice${index}`);
-            label.textContent = `Option ${choice}:`;
+            label.setAttribute('for', `choice_label_${question._id}_${index}`);
+            label.textContent = choiceLabel;
 
+            // Input pour chaque choix
             const input = document.createElement('input');
-            input.setAttribute('id', `choice${index}`);
+            input.setAttribute('id', `choice_label_${question._id}_${index}`);
             input.setAttribute('type', 'number');
-            input.setAttribute('name', `choice_${choice}`);
+            input.setAttribute('type', 'number');
+            input.setAttribute('name', `choice_${choiceLabel}`);
             input.setAttribute('min', '1');
-            input.setAttribute('max', question.choices.length.toString());
-            input.setAttribute('placeholder', 'Classer votre préférence');
-            input.value = '0';
+            input.setAttribute('max', question.choices_label.length.toString());
+            input.value = userVote[choiceLabel] || '0'; // Pré-remplit avec le vote existant
 
-            // Mise à jour des réponses en fonction de l'entrée utilisateur
-            input.addEventListener('change', () => {
+            // Mise à jour des réponses en cas de changement
+            input.addEventListener('input', () => {
                 const parsedValue = parseInt(input.value, 10);
                 if (!isNaN(parsedValue)) {
-                    answers.choices[choice] = parsedValue;
+                    answers.choices[choiceLabel] = parsedValue;
                 } else {
-                    delete answers.choices[choice]; // Supprime les entrées invalides
+                    delete answers.choices[choiceLabel];
                 }
             });
 
@@ -109,51 +100,43 @@ function createQuestionForm(question) {
 
         questionForm.appendChild(choiceContainer);
     }
-// Création du bouton pour soumettre le formulaire
-const submitButton = document.createElement('button');
-submitButton.textContent = 'Vote'; // Texte affiché sur le bouton
-submitButton.classList.add('submit-button'); // Classe pour le style
-submitButton.setAttribute('type', 'submit'); // Type de soumission
-questionForm.appendChild(submitButton);
 
-// Gestionnaire d'événements pour la soumission du formulaire
-questionForm.addEventListener('submit', function (event) {
-    event.preventDefault(); // Empêche le rechargement de la page par défaut
+    // Bouton de soumission
+    const submitButton = document.createElement('button');
+    submitButton.textContent = Object.keys(userVote).length > 0 ? 'Mettre à jour le vote' : 'Soumettre le vote';
+    submitButton.classList.add('submit-button');
+    submitButton.setAttribute('type', 'submit');
+    questionForm.appendChild(submitButton);
 
-    // Affiche les réponses collectées pour débogage
-    console.log('Réponses collectées:', answers);
+    // Gestionnaire de soumission
+    questionForm.addEventListener('submit', event => {
+        event.preventDefault();
 
-    // Vérification de base avant l'envoi
-    if (!Object.keys(answers.choices).length) {
-        alert('Veuillez classer au moins une option avant de soumettre votre vote.');
-        return;
-    }
+        if (!Object.keys(answers.choices).length) {
+            alert('Veuillez classer au moins une option avant de soumettre votre vote.');
+            return;
+        }
 
-    // Envoi des données via fetch
-    fetch('/Vote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }, // Spécifie que le contenu est du JSON
-        body: JSON.stringify(answers) // Convertit les réponses en JSON
-    })
-        .then(response => {
-            // Vérifie si la réponse est OK
-            if (!response.ok) {
-                throw new Error(`Erreur ${response.status}: Échec de l'envoi des données.`);
-            }
-            return response.json(); // Convertit la réponse en JSON
+        // Envoi du vote via Fetch API
+        fetch('/Vote', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(answers)
         })
-        .then(data => {
-            // Affiche la réponse du serveur pour confirmation
-            console.log('Réponse du serveur:', data);
-            alert(`Votre vote pour "${answers.question_title}" a été enregistré avec succès.`);
-        })
-        .catch(error => {
-            // Gestion des erreurs
-            console.error('Erreur lors de l\'envoi des données:', error.message);
-            alert('Une erreur est survenue lors de l\'envoi de votre vote. Veuillez vérifier votre connexion ou réessayer.');
-        });
-});
-
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur lors de la soumission du vote');
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message);
+                console.log('Vote enregistré avec succès:', data);
+            })
+            .catch(error => {
+                console.error('Erreur lors de la soumission du vote:', error.message);
+            });
+    });
 
     return questionForm;
 }

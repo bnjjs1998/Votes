@@ -10,8 +10,6 @@ from app import mongo
 from systeme_log import *
 from bson.objectid import ObjectId
 
-
-
 @app.route('/Post_sondage', methods=['POST'])
 @login_required
 def post_sondage():
@@ -48,84 +46,6 @@ def post_sondage():
             "choices": choices,
         }
     )
-
-@app.route('/Post_vote', methods=['POST', 'GET'])
-@login_required
-def post_vote():
-    # Récupérer les données envoyées par le frontend
-    data = request.get_json()
-    print('Donnée reçue:', data)
-
-    # Vérification des champs obligatoires
-    title_question = data.get('question_title')
-    choices_data = data.get('choices')
-
-    if not title_question or not choices_data:
-        return jsonify({
-            "status": 400,
-            "message": "Les champs 'question_title' et 'choices' sont requis."
-        }), 400
-
-    # Vérifier si la question existe déjà dans la collection 'questions'
-    existing_question = mongo.db.questions.find_one({"question_title": title_question})
-
-    if not existing_question:
-        return jsonify({
-            "status": 404,
-            "message": f"Le sondage avec le titre '{title_question}' est introuvable."
-        }), 404
-
-    document_id = existing_question["_id"]
-    print(f"Le sondage '{title_question}' trouvé. ID : {document_id}")
-
-    # Initialisation de la logique de Condorcet : Comparaison par paires
-    options = list(choices_data.keys())
-    pairwise_results = {option: {opponent: 0 for opponent in options if opponent != option} for option in options}
-
-    for option, rank in choices_data.items():
-        for opponent, opponent_rank in choices_data.items():
-            if option != opponent:
-                if rank < opponent_rank:
-                    pairwise_results[option][opponent] += 1
-                elif rank > opponent_rank:
-                    pairwise_results[opponent][option] += 1
-
-    print("Résultats par paires :", pairwise_results)
-
-    # Calcul des scores finaux selon Condorcet
-    final_scores = {option: 0 for option in options}
-    for option, opponents in pairwise_results.items():
-        for opponent, score in opponents.items():
-            if score > pairwise_results[opponent][option]:
-                final_scores[option] += 1
-
-    print("Scores finaux selon Condorcet :", final_scores)
-
-    # Mettre à jour le document dans la collection 'questions'
-    update_result = mongo.db.questions.update_one(
-        {"_id": document_id},
-        {
-            "$set": {
-                "Condorcet_Scores": final_scores  # Enregistre les scores calculés
-            },
-            "$push": {
-                "votes": {
-                    "user_id": current_user.username,  # Identifiant de l'utilisateur
-                    "choices": choices_data           # Les choix de cet utilisateur
-                }
-            }
-        }
-    )
-
-
-    # Réponse en cas de succès
-    return jsonify({
-        "status": 200,
-        "message": "Les votes ont été traités et intégrés avec succès.",
-        "Condorcet_Scores": final_scores
-    }), 200
-from bson import ObjectId
-
 @app.route('/Vote', methods=['POST'])
 @login_required  # Retirez temporairement pour tester
 def vote():
@@ -137,30 +57,44 @@ def vote():
         data = request.get_json()
         print("Données reçues :", data)
 
-        # Vérifiez que les champs nécessaires sont présents
         question_title = data.get('question_title')
         choices = data.get('choices')
 
-        if not question_title or not choices:
-            return jsonify({"status": 400, "message": "Le titre de la question et les choix sont requis."}), 400
+        #je récupère l'id du user connecté
+        user_id = current_user.id
+        # Vérifiez si l'utilisateur existe
+        user = mongo.db.users.find_one({"_id": user_id})
+        print("Utilisateur trouvé :", user)
 
-        # Comparer avec la collection `questions` pour vérifier si la question existe
+        # Vérifiez si la question existe
         question = mongo.db.questions.find_one({"title_question": question_title})
 
-        if not question:
-            return jsonify({"status": 404, "message": "La question spécifiée n'existe pas."}), 404
-
-        question_id = question["_id"]  # Obtenir l'ID de la question
+        question_id = question["_id"]
         print(f"ID de la question trouvée : {question_id}")
 
-        # Logique Condorcet : Comparaison par paires
+        # Mettre à jour les votes de l'utilisateur
+        user_vote_entry = {
+            "user_id": user_id,
+            "username": user.get("username", "Anonyme"),
+            "choices": choices
+        }
+
+        # Ajouter ou mettre à jour `user_votes`
+        user_votes = question.get("user_votes", [])
+        existing_vote = next((vote for vote in user_votes if vote["user_id"] == user_id), None)
+
+        if existing_vote:
+            existing_vote["choices"] = choices
+        else:
+            user_votes.append(user_vote_entry)
+
+        # Logique Condorcet
         options = list(choices.keys())
         pairwise_results = {
             option: {opponent: 0 for opponent in options if opponent != option}
             for option in options
         }
 
-        # Comparaison des paires
         for option, rank in choices.items():
             for opponent, opponent_rank in choices.items():
                 if option != opponent:
@@ -171,7 +105,6 @@ def vote():
 
         print("Résultats par paires :", pairwise_results)
 
-        # Calcul des scores finaux selon Condorcet
         final_scores = {option: 0 for option in options}
         for option, opponents in pairwise_results.items():
             for opponent, score in opponents.items():
@@ -180,33 +113,44 @@ def vote():
 
         print("Scores finaux selon Condorcet :", final_scores)
 
-        # Mise à jour du document avec les résultats Condorcet
+        # Mise à jour de la question
         updated_question = mongo.db.questions.find_one_and_update(
-            {"_id": question_id},  # Filtre basé sur l'ID
+            {"_id": question_id},
             {
                 "$set": {
-                    "choices": choices,              # Met à jour les choix
-                    "Condorcet_Scores": final_scores  # Ajoute les scores Condorcet
+                    "user_votes": user_votes,
+                    "Condorcet_Scores": final_scores
                 }
             },
-            return_document=True  # Retourne le document mis à jour
+            return_document=True
         )
 
-        # Convertir _id en chaîne pour le retour JSON
-        if updated_question:
-            updated_question["_id"] = str(updated_question["_id"])
+        # Convertir les ObjectId en chaînes
+        updated_question["_id"] = str(updated_question["_id"])
 
-        # Afficher la question mise à jour pour débogage
-        print("Question mise à jour :", updated_question)
+        # Mise à jour des préférences utilisateur
+        user_classements = user.get("mes_classements", [])
+        classement_entry = {
+            "title": question_title,
+            "choices": choices,
+            "Condorcet_Scores": final_scores
+        }
 
-        # Retourner une réponse avec les scores calculés
-        return jsonify({
-            "status": 200,
-            "message": "Vote traité avec succès.",
-            "Condorcet_Scores": final_scores,
-            "Updated_Question": updated_question  # Retourne la question mise à jour pour validation
-        }), 200
+        existing_classement = next((c for c in user_classements if c["title"] == question_title), None)
+        if existing_classement:
+            existing_classement["choices"] = choices
+            existing_classement["Condorcet_Scores"] = final_scores
+        else:
+            user_classements.append(classement_entry)
 
+        mongo.db.users.update_one(
+            {"_id": user_id},
+            {"$set": {"mes_classements": user_classements}}
+        )
     except Exception as e:
         print(f"Erreur lors du traitement : {e}")
-        return jsonify({"status": 500, "message": "Erreur interne", "details": str(e)}), 500
+        return jsonify({
+            "status": 500,
+            "message": "Erreur interne",
+            "details": str(e)
+        }), 500
