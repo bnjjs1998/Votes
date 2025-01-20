@@ -45,9 +45,9 @@ def update_title():
 @login_required
 def delete_btn():
     data = request.get_json()
-
     # Afficher les données reçues pour déboguer
     print(f"Data received for delete: {data}")
+
 
 
 
@@ -61,10 +61,19 @@ def delete_btn():
 
 @app.route('/Change_state_btn', methods=['POST'])
 def change_state_btn():
+
     # Récupérer les données envoyées par le client
     data = request.get_json()
     title_quest = data.get('question_title')
     state = data.get('privacy')
+
+
+    # je vérifie la table archive si c'est le cas erreur
+    document_block = mongo.db.scrutin_archive.find_one({'title_question': title_quest})
+    if document_block:
+        return jsonify({
+            "error": "la question est deja dans les archive"
+        })
 
     print(f"Données reçues : {data}")
     print(f"État demandé : {state}")

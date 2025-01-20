@@ -34,7 +34,7 @@ from Modifie_profile import *
 from remove_profile import *
 from Modifie_sondage import *
 from Block_votes import *
-
+from get_result import *
 
 
 
