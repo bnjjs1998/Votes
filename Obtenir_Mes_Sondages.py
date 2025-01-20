@@ -15,17 +15,45 @@ def template_my_questions():
 @app.route('/get_sondage_current_id', methods=['GET'])
 @login_required
 def get_sondage():
-    data_quest = mongo.db.users.find_one(
-        {"_id": current_user.id},
-        {"Mes sondages": 1}
-    )
-    print("Data from MongoDB:", data_quest)
+    try:
+        # Récupérer tous les titres de la collection `scrutin_archive`
+        archived_titles = [doc["title_question"] for doc in mongo.db.scrutin_archive.find({}, {"title_question": 1})]
 
-    sondage = data_quest.get('Mes sondages', [])  # Utilisez "Mes sondages", pas "Sondage"
+        # Récupérer les sondages de l'utilisateur
+        data_quest = mongo.db.users.find_one(
+            {"_id": current_user.id},
+            {"Mes sondages": 1}
+        )
 
-    print("Extracted Sondage:", sondage)
+        if not data_quest or "Mes sondages" not in data_quest:
+            return jsonify({
+                "status_code": 404,
+                "message": "Utilisateur ou sondages non trouvés."
+            }), 404
 
-    return jsonify({
-        "status_code": 200,
-        "Sondage": sondage
-    })
+        # Vérifier si un titre correspond
+        sondage = data_quest.get("Mes sondages", [])
+        for item in sondage:
+            if item.get("title_question") in archived_titles:
+                print(item.get("title_question"))  # Affiche "Hello" si une correspondance est trouvée
+                print(item)
+
+
+                # Supprimer l'objet entier correspondant
+                mongo.db.users.update_one(
+                    {"_id": current_user.id},
+                    {"$pull": {"Mes sondages": {"title_question": item.get("title_question")}}}
+                )
+
+
+        return jsonify({
+            "status_code": 200,
+            "Sondage": sondage
+        }), 200
+
+    except Exception as e:
+        print(f"Erreur lors de la récupération des sondages : {e}")
+        return jsonify({
+            "status_code": 500,
+            "message": "Une erreur interne est survenue."
+        }), 500

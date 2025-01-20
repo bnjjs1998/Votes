@@ -47,9 +47,9 @@ def delete_btn():
     data = request.get_json()
     # Afficher les données reçues pour déboguer
     print(f"Data received for delete: {data}")
-
-
-
+    # Validation des données
+    title = data.get('question_title')
+    print(title)
 
     return jsonify({
         "success": True

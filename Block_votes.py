@@ -26,6 +26,16 @@ def block_btn():
         question_id = question['_id']
         print(f"Question ID : {question_id}")
 
+        #on va regarder si la question est pas déja archivé
+
+        list_document_block = mongo.db.scrutin_archive.find_one({'_id': question_id})
+        if list_document_block :
+            #actualulis
+            return jsonify({
+                "message": "Sondage déja blocké",
+                'status': 'success',
+            })
+
         # Changer le statut de la question
         mongo.db.questions.update_one(
             {'_id': question_id},
