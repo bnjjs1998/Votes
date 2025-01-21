@@ -35,8 +35,7 @@ def get_sondage():
         sondage = data_quest.get("Mes sondages", [])
         for item in sondage:
             if item.get("title_question") in archived_titles:
-                print(item.get("title_question"))  # Affiche "Hello" si une correspondance est trouvée
-                print(item)
+                print(item.get("title_question"))
 
 
                 # Supprimer l'objet entier correspondant
@@ -44,7 +43,6 @@ def get_sondage():
                     {"_id": current_user.id},
                     {"$pull": {"Mes sondages": {"title_question": item.get("title_question")}}}
                 )
-
 
         return jsonify({
             "status_code": 200,

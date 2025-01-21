@@ -6,39 +6,66 @@ from app import *
 from app import app
 from app import mongo
 from request_friend import collections_user
-
-
 @app.route('/update_choices', methods=['POST'])
 @login_required
 def update_choices():
-    # Récupération des données envoyées par le frontend
-    data = request.get_json()
-    sondage_id = data.get('sondage_id')
-    new_choices = data.get('new_choices')
+    try:
+        # Récupération des données envoyées par le frontend
+        data = request.get_json()
 
-    # Log des données reçues
-    print(f"Reçu - sondage_id: {sondage_id}, new_choices: {new_choices}")
 
-    # Simuler la mise à jour des choix dans la base de données (ou autre traitement)
-    # Par exemple, si la mise à jour réussit, vous renvoyez les nouveaux choix :
 
-    return jsonify({
-        "succes": True,
-        "updated_choices": new_choices  # Vous renvoyez les choix mis à jour
-    })
+
+    except Exception as e:
+        print(f"Erreur lors de la mise à jour des choix : {e}")
+        return jsonify({
+            "success": False,
+            "message": "Une erreur interne est survenue."
+        }), 500
+
+
+
 
 @app.route('/update_title', methods=['POST'])
 @login_required
 def update_title():
-    # Récupération des données envoyées par le frontend
-    data = request.get_json()
-    print(f"Données reçues pour la mise à jour du titre: {data}")  # Ajout d'un log pour afficher les données reçues
+    try:
+        # Récupération des données envoyées par le frontend
+        data = request.get_json()
+        old_title = data.get('old_title')  # Titre existant
+        new_title = data.get('new_title')  # Nouveau titre
 
-    new_title = data.get('new_title')
-    print(f"Nouveau titre reçu: {new_title}")  # Vérifiez le nouveau titre reçu
-    return jsonify({
-        "success": True
-    })
+        if not old_title or not new_title:
+            return jsonify({
+                "success": False,
+                "message": "Les deux titres (ancien et nouveau) sont requis."
+            }), 400
+
+        # Mise à jour dans la collection MongoDB
+        result = mongo.db.users.update_one(
+            {"_id": current_user.id, "Mes sondages.title_question": old_title},
+            {"$set": {"Mes sondages.$.title_question": new_title}}
+        )
+
+        if result.modified_count > 0:
+            return jsonify({
+                "success": True,
+                "message": "Le titre a été mis à jour avec succès.",
+                "old_title": old_title,
+                "new_title": new_title
+            }), 200
+        else:
+            return jsonify({
+                "success": False,
+                "message": "Aucun titre correspondant trouvé ou mise à jour non effectuée."
+            }), 404
+
+    except Exception as e:
+        print(f"Erreur lors de la mise à jour du titre : {e}")
+        return jsonify({
+            "success": False,
+            "message": "Une erreur interne est survenue."
+        }), 500
 
 
 @app.route('/Delete_btn', methods=['POST'])
@@ -50,6 +77,8 @@ def delete_btn():
     # Validation des données
     title = data.get('question_title')
     print(title)
+
+
 
     return jsonify({
         "success": True
