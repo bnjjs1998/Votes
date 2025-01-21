@@ -6,13 +6,18 @@ from flask_bcrypt import Bcrypt
 import uuid
 from pymongo import ReturnDocument
 
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"  # Changez cette clé pour sécuriser votre application
+# app.secret_key = "supersecretkey"  # Changez cette clé pour sécuriser votre application
+app.secret_key = os.getenv("SECRET_KEY")
 
 # Configuration MongoDB
-app.config["MONGO_URI"] = "mongodb://localhost:27017/mydb"
+# app.config["MONGO_URI"] = "mongodb://localhost:27017/mydb"
+app.config["MONGO_URI"] = os.getenv("MONGO_URI")
 mongo = PyMongo(app)
 bcrypt = Bcrypt(app)
 
@@ -30,7 +35,11 @@ from Obtenir_Mes_Sondages import *
 from Route_basique import *
 from request_friend import *
 from Liste_sondage import *
-
+from Modifie_profile import *
+from remove_profile import *
+from Modifie_sondage import *
+from Block_votes import *
+from get_result import *
 
 
 

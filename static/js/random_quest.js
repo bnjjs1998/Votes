@@ -1,3 +1,4 @@
+
 fetch('/get_questions', {
     method: 'GET',
 })
@@ -10,14 +11,16 @@ fetch('/get_questions', {
     .then(data => {
         console.log('Données reçues:', data);
         const questionsContainer = document.getElementById('questions-container');
+        questionsContainer.innerHTML = '';
 
-        data.questions.forEach(question => {
+        data.forEach(question => {
             const questionForm = document.createElement('form');
             questionForm.setAttribute('method', 'POST');
             questionForm.setAttribute('action', '/Post_vote');
+            questionForm.classList.add('formVote');
 
-            const title = document.createElement('h2');
-            title.textContent = question.title_question;
+            const title = document.createElement('h3');
+            title.textContent = `• ${question.title_question}`;
             questionForm.appendChild(title);
 
             // Dictionnaire pour stocker les réponses
@@ -29,11 +32,13 @@ fetch('/get_questions', {
 
             // Parcours des choix dans la question
             question.choices.forEach((choice, index) => {
-
+                const div = document.createElement('div');
+                div.classList.add('input_container');
+                div.classList.add('number_input');
                 //Création des différents labels pour l'input
                 const label = document.createElement('label');
                 label.setAttribute('for', `choice${question._id}_${index}`);
-                label.textContent = `Option ${choice} :`;
+                label.textContent = `${index + 1}. ${choice} :`;
 
 
                 //Création de l'input en fonction de ce quil trouve dans le document mongo
@@ -51,13 +56,15 @@ fetch('/get_questions', {
                     answers.choices[choice] = parseInt(input.value, 10);  // Enregistre chaque choix avec son score
                 });
 
-                questionForm.appendChild(label);
-                questionForm.appendChild(input);
+                questionForm.appendChild(div);
+                div.appendChild(label);
+                div.appendChild(input);
             });
 
             const buttonPostVote = document.createElement('button');
             buttonPostVote.textContent = 'Vote';
             buttonPostVote.setAttribute('type', 'submit');
+            buttonPostVote.classList.add('button');
             questionForm.appendChild(buttonPostVote);
 
             questionsContainer.appendChild(questionForm);
@@ -67,7 +74,7 @@ fetch('/get_questions', {
                 event.preventDefault();
 
                 console.log('Réponses collectées:', answers);
-                fetch('/Post_vote', {
+                fetch('/Vote', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -87,3 +94,34 @@ fetch('/get_questions', {
     .catch(error => {
         console.error('Erreur de récupération des questions:', error);
     });
+
+document.getElementById("submit_button").addEventListener("click", async function (event) {
+    event.preventDefault();    
+    const formData = new FormData(document.getElementById("newFormVote")); 
+    try {
+        const response = await fetch("/Post_sondage", {
+            method: "POST",
+            body: formData,
+        });
+        const result = await response.json();
+        if (response.ok) {
+            alert(result.message); // Affiche l'alerte Windows avec le message du serveur
+            // refreshQuestionsContainer(); // Actualise le  après que l'utilisateur ferme l'alerte
+            location.reload();
+        } else {
+            alert(`Erreur : ${result.error}`);
+        }
+    } catch (error) {
+        alert("Une erreur est survenue. Veuillez réessayer.");
+    }
+});
+
+function refreshQuestionsContainer() {
+    fetch("/get_questions") // Mettez l'URL pour récupérer les questions à jour
+        .then(response => response.text())
+        .then(html => {
+            console.log("Nouveau contenu des questions :", html);
+            document.getElementById("questions-container").innerHTML = html;
+        })
+        .catch(error => console.error("Erreur lors de la mise à jour :", error));
+}

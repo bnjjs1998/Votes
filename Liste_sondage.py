@@ -1,7 +1,6 @@
 from codecs import replace_errors
-
-from flask import request, jsonify
-from flask_login import login_required
+from flask import request, jsonify, render_template
+from flask_login import login_required, current_user
 from app import *
 from app import app
 from app import mongo
@@ -17,7 +16,7 @@ def the_quest():
 @app.route('/get_questions', methods=['GET'])
 @login_required
 def liste_sondage():
-    all_question = mongo.db.questions.find()
+    all_question = mongo.db.questions.find().sort('creation_date', -1).limit(10)
 
     # Convertir les résultats MongoDB en liste de dictionnaires et ajouter l'ID de chaque question
     questions = []
@@ -26,10 +25,7 @@ def liste_sondage():
         question_data['_id'] = str(question['_id'])
         questions.append(question_data)
 
-    return jsonify(
-        {'questions': questions},
-
-    )
+    return jsonify(questions)  # Retourne la liste des questions sans l'_id
 
 
 @app.route('/my_questions', methods=['GET'])

@@ -1,5 +1,5 @@
 from flask import render_template, jsonify, request
-from flask_login import UserMixin, login_required
+from flask_login import UserMixin, login_required, current_user
 from app import *
 from app import app
 from app import mongo
