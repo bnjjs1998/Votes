@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Résultat votes</title>
+</head>
+<body>
+<header>
+    <form action="/dashboard">
+        <button>back</button>
+    </form>
+</header>
+<h1>Ici l'ensemble des résultats définitif</h1>
+<div id="Result_container" class="Div_resul">
+    <p> titre_questions</p>
+    <div  class="Résul_final">
+    </div>
+</div>
+
+<!-- Ici, ça sera l'endroit d'import de mes différents scripts -->
+<script src="{{ url_for('static', filename='js/result_vote.js') }}"></script>
+</body>
+</html>

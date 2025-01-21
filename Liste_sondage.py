@@ -1,6 +1,5 @@
 from codecs import replace_errors
-
-from flask import request, jsonify
+from flask import request, jsonify, render_template
 from flask_login import login_required, current_user
 from app import *
 from app import app
@@ -26,10 +25,7 @@ def liste_sondage():
         question_data['_id'] = str(question['_id'])
         questions.append(question_data)
 
-    return jsonify(
-        {'questions': questions},
-
-    )
+    return jsonify(questions_data)  # Retourne la liste des questions sans l'_id
 
 
 @app.route('/my_questions', methods=['GET'])

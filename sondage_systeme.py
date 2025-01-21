@@ -1,5 +1,6 @@
+import time
 from unittest import result
-
+import time
 from flask import request, jsonify
 from flask_login import login_required, current_user
 from app import *
@@ -72,100 +73,110 @@ def post_sondage():
             "message": "Sondage créé avec succès."
         }
     ), 200
+@app.route('/Vote', methods=['POST'])
+@login_required  # Retirez temporairement pour tester
+def vote():
+    try:
+        # Données brutes pour débogage
+        print("Données brutes reçues :", request.data)
 
+        # Parse les données JSON
+        data = request.get_json()
+        print("Données reçues :", data)
 
-@app.route('/Post_vote', methods=['POST'])
-@login_required
-def post_vote():
-    # Récupérer les données envoyées par le frontend
-    data = request.get_json()
-    print('Donnée reçue:', data)
+        question_title = data.get('question_title')
+        choices = data.get('choices')
 
-    # Extraire et nettoyer les données
-    _id_question = data.get('_id')
-    title_question = data.get('title_question')
-    choices_data = data.get('choices', {})
-    print(f"ID question : {_id_question}, Choix reçus : {choices_data}")
+        #je récupère l'id du user connecté
+        user_id = current_user.id
+        # Vérifiez si l'utilisateur existe
+        user = mongo.db.users.find_one({"_id": user_id})
+        print("Utilisateur trouvé :", user)
 
-    # Récupérer le sondage depuis MongoDB
-    sondage = mongo.db.questions.find_one({"_id": ObjectId(_id_question)})
+        # Vérifiez si la question existe
+        question = mongo.db.questions.find_one({"title_question": question_title})
 
-    if not sondage:
-        return jsonify({"status": 404, "error": "Sondage introuvable."}), 404
+        question_id = question["_id"]
+        print(f"ID de la question trouvée : {question_id}")
 
-    # Vérifier si le sondage existe et est encore valide
-    expiration_date = sondage.get('expiration_date')
-    if expiration_date and datetime.now() > expiration_date:
-        return jsonify({"status": 400, "error": "Le sondage est expiré."}), 400
-
-    # Préparer l'objet à ajouter dans mes_classement
-    classement = {
-        "_id_question": _id_question,
-        "title": title_question,
-        "choices": choices_data,
-    }
-
-    # Vérifier si cette question a déjà été votée
-    already_voted = mongo.db.users.find_one(
-        {
-            "_id": current_user.id,
-            "mes_classement.title": title_question
+        # Mettre à jour les votes de l'utilisateur
+        user_vote_entry = {
+            "user_id": user_id,
+            "username": user.get("username", "Anonyme"),
+            "choices": choices
         }
-    )
-    if already_voted:
-        return jsonify(
+
+        # Ajouter ou mettre à jour `user_votes`
+        user_votes = question.get("user_votes", [])
+        existing_vote = next((vote for vote in user_votes if vote["user_id"] == user_id), None)
+
+        if existing_vote:
+            existing_vote["choices"] = choices
+        else:
+            user_votes.append(user_vote_entry)
+        # Logique Condorcet
+        options = list(choices.keys())
+        pairwise_results = {
+            option: {opponent: 0 for opponent in options if opponent != option}
+            for option in options
+        }
+
+        for option, rank in choices.items():
+            for opponent, opponent_rank in choices.items():
+                if option != opponent:
+                    if rank < opponent_rank:
+                        pairwise_results[option][opponent] += 1
+                    elif rank > opponent_rank:
+                        pairwise_results[opponent][option] += 1
+
+        print("Résultats par paires :", pairwise_results)
+
+        final_scores = {option: 0 for option in options}
+        for option, opponents in pairwise_results.items():
+            for opponent, score in opponents.items():
+                if score > pairwise_results[opponent][option]:
+                    final_scores[option] += 1
+
+        print("Scores finaux selon Condorcet :", final_scores)
+
+        # Mise à jour de la question
+        updated_question = mongo.db.questions.find_one_and_update(
+            {"_id": question_id},
             {
-                "status": 400,
-                "error": "La question a déjà été votée."
-            }
-        ), 400
-    else:
-        # Ajouter le classement dans "mes_classement" pour l'utilisateur
-        mongo.db.users.find_one_and_update(
-            {"_id": current_user.id},
-            {"$push": {"mes_classement": classement}},
+                "$set": {
+                    "user_votes": user_votes,
+                    "Condorcet_Scores": final_scores
+                }
+            },
             return_document=True
         )
 
-        # Initialisation des compteurs pour chaque rangnnn
-        resultat_3 = 0
-        resultat_2 = 0
-        resultat_1 = 0
+        # Convertir les ObjectId en chaînes
+        updated_question["_id"] = str(updated_question["_id"])
 
-        # Structure des résultats des votes
-        votes_result_data = {
-            "_id": ObjectId(_id_question),
-            "title_question": title_question,
-            "result_votes": {}  # Initialisation de l'objet 'choices'
+        # Mise à jour des préférences utilisateur
+        user_classements = user.get("mes_classements", [])
+        classement_entry = {
+            "title": question_title,
+            "choices": choices,
+            "Condorcet_Scores": final_scores
         }
 
-        # Parcours de chaque choix et de son rang
-        for clef, rank in choices_data.items():
-            print('Les clefs sont:', clef)
-            # Incrémentation des résultats
-            if rank == 1:
-                resultat_3 += 1
-                votes_result_data["result_votes"][clef] = resultat_3
-            elif rank == 2:
-                resultat_2 += 2  # 2 points pour le rang 2
-                votes_result_data["result_votes"][clef] = resultat_2
-            elif rank == 3:
-                resultat_1 += 3  # 3 points pour le rang 3
-                votes_result_data["result_votes"][clef] = resultat_1
+        existing_classement = next((c for c in user_classements if c["title"] == question_title), None)
+        if existing_classement:
+            existing_classement["choices"] = choices
+            existing_classement["Condorcet_Scores"] = final_scores
+        else:
+            user_classements.append(classement_entry)
 
-        # Mise à jour des résultats dans MongoDB pour la question
-        mongo.db.questions.update_one(
-            {"_id": ObjectId(_id_question)},  # Filtrage sur l'ID de la question
-            {"$set": votes_result_data}  # Mise à jour des résultats de votes
+        mongo.db.users.update_one(
+            {"_id": user_id},
+            {"$set": {"mes_classements": user_classements}}
         )
-
-        return jsonify(
-            {
-                "status": 200,
-                "message": "Vote enregistré avec succès."
-            }
-        ), 200
-
-
-
-
+    except Exception as e:
+        print(f"Erreur lors du traitement : {e}")
+        return jsonify({
+            "status": 500,
+            "message": "Erreur interne",
+            "details": str(e)
+        }), 500

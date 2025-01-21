@@ -36,7 +36,11 @@ from Obtenir_Mes_Sondages import *
 from Route_basique import *
 from request_friend import *
 from Liste_sondage import *
-
+from Modifie_profile import *
+from remove_profile import *
+from Modifie_sondage import *
+from Block_votes import *
+from get_result import *
 
 
 
