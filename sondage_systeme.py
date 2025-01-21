@@ -110,7 +110,7 @@ def vote():
         question = mongo.db.questions.find_one({"title_question": question_title})
 
         question_id = question["_id"]
-
+        #i
         # Logique Condorcet (inchangée)
         pairwise_results = {
             option: {opponent: 0 for opponent in choices if opponent != option}
