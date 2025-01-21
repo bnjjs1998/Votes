@@ -74,53 +74,48 @@ def post_sondage():
         }
     ), 200
 @app.route('/Vote', methods=['POST'])
-@login_required  # Retirez temporairement pour tester
+@login_required
 def vote():
     try:
-        # Données brutes pour débogage
-        print("Données brutes reçues :", request.data)
-
-        # Parse les données JSON
+        # Récupération des données JSON
         data = request.get_json()
         print("Données reçues :", data)
 
-        question_title = data.get('question_title')
-        choices = data.get('choices')
+        # Vérifications avec logs
+        if not data:
+            print("Erreur : aucune donnée reçue")
+            return jsonify({"status": 400, "message": "Aucune donnée reçue"}), 400
 
-        #je récupère l'id du user connecté
+        if "title_question" not in data:
+            print("Erreur : 'title_question' manquant")
+            return jsonify({"status": 400, "message": "'title_question' manquant"}), 400
+
+        if "choices" not in data:
+            print("Erreur : 'choices' manquant")
+            return jsonify({"status": 400, "message": "'choices' manquant"}), 400
+
+        if not isinstance(data["choices"], dict):
+            print("Erreur : 'choices' n'est pas un dictionnaire")
+            return jsonify({"status": 400, "message": "'choices' doit être un dictionnaire"}), 400
+
+        # Traitement principal
+        question_title = data["title_question"]
+        choices = data["choices"]
+
+        # Vérifiez l'utilisateur
         user_id = current_user.id
-        # Vérifiez si l'utilisateur existe
         user = mongo.db.users.find_one({"_id": user_id})
-        print("Utilisateur trouvé :", user)
 
-        # Vérifiez si la question existe
+        # Vérifiez la question
         question = mongo.db.questions.find_one({"title_question": question_title})
 
         question_id = question["_id"]
-        print(f"ID de la question trouvée : {question_id}")
 
-        # Mettre à jour les votes de l'utilisateur
-        user_vote_entry = {
-            "user_id": user_id,
-            "username": user.get("username", "Anonyme"),
-            "choices": choices
-        }
-
-        # Ajouter ou mettre à jour `user_votes`
-        user_votes = question.get("user_votes", [])
-        existing_vote = next((vote for vote in user_votes if vote["user_id"] == user_id), None)
-
-        if existing_vote:
-            existing_vote["choices"] = choices
-        else:
-            user_votes.append(user_vote_entry)
-        # Logique Condorcet
-        options = list(choices.keys())
+        # Logique Condorcet (inchangée)
         pairwise_results = {
-            option: {opponent: 0 for opponent in options if opponent != option}
-            for option in options
+            option: {opponent: 0 for opponent in choices if opponent != option}
+            for option in choices
         }
-
         for option, rank in choices.items():
             for opponent, opponent_rank in choices.items():
                 if option != opponent:
@@ -129,50 +124,28 @@ def vote():
                     elif rank > opponent_rank:
                         pairwise_results[opponent][option] += 1
 
-        print("Résultats par paires :", pairwise_results)
-
-        final_scores = {option: 0 for option in options}
+        final_scores = {option: 0 for option in choices}
         for option, opponents in pairwise_results.items():
             for opponent, score in opponents.items():
                 if score > pairwise_results[opponent][option]:
                     final_scores[option] += 1
 
-        print("Scores finaux selon Condorcet :", final_scores)
-
-        # Mise à jour de la question
-        updated_question = mongo.db.questions.find_one_and_update(
+        # Mise à jour de la base de données
+        mongo.db.questions.update_one(
             {"_id": question_id},
             {
                 "$set": {
-                    "user_votes": user_votes,
                     "Condorcet_Scores": final_scores
                 }
-            },
-            return_document=True
+            }
         )
 
-        # Convertir les ObjectId en chaînes
-        updated_question["_id"] = str(updated_question["_id"])
+        return jsonify({
+            "status": 200,
+            "message": "Vote enregistré avec succès",
+            "scores": final_scores
+        }), 200
 
-        # Mise à jour des préférences utilisateur
-        user_classements = user.get("mes_classements", [])
-        classement_entry = {
-            "title": question_title,
-            "choices": choices,
-            "Condorcet_Scores": final_scores
-        }
-
-        existing_classement = next((c for c in user_classements if c["title"] == question_title), None)
-        if existing_classement:
-            existing_classement["choices"] = choices
-            existing_classement["Condorcet_Scores"] = final_scores
-        else:
-            user_classements.append(classement_entry)
-
-        mongo.db.users.update_one(
-            {"_id": user_id},
-            {"$set": {"mes_classements": user_classements}}
-        )
     except Exception as e:
         print(f"Erreur lors du traitement : {e}")
         return jsonify({
