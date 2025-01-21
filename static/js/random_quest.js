@@ -23,7 +23,7 @@ fetch('/get_questions', {
             questionForm.setAttribute('method', 'POST');
             questionForm.setAttribute('action', '/Post_vote');
 
-            const title = document.createElement('h2');
+            const title = document.createElement('h3');
             title.textContent = question.title_question;
             questionForm.appendChild(title);
 
@@ -33,12 +33,12 @@ fetch('/get_questions', {
                 choices: {},
             };
 
-            // Vérifiez si les choix existent et sont un tableau
-            if (Array.isArray(question.choices_label)) {
-                question.choices_label.forEach((choice, index) => {
-                    const label = document.createElement('label');
-                    label.setAttribute('for', `choice${index}`);
-                    label.textContent = `Option ${choice} :`;
+            (question.choices || []).forEach((choice, index) => {
+                const div = document.createElement('div');
+                div.classList.add('input_container');
+                const label = document.createElement('label');
+                label.setAttribute('for', `choice${index}`);
+                label.textContent = `Option ${index + 1} : ${choice}`;
 
                     const input = document.createElement('input');
                     input.setAttribute('id', `choice${index}`);
@@ -58,13 +58,16 @@ fetch('/get_questions', {
                     questionForm.appendChild(input);
                     questionForm.appendChild(document.createElement('br'));
                 });
-            } else {
-                console.warn('Les choix ne sont pas définis ou ne sont pas un tableau pour cette question.', question);
-            }
+
+                questionForm.appendChild(div);
+                div.appendChild(label);
+                div.appendChild(input);
+            });
 
             const buttonPostVote = document.createElement('button');
             buttonPostVote.textContent = 'Vote';
             buttonPostVote.setAttribute('type', 'submit');
+            buttonPostVote.classList.add('button');
             questionForm.appendChild(buttonPostVote);
 
             questionsContainer.appendChild(questionForm);
@@ -99,3 +102,34 @@ fetch('/get_questions', {
     .catch(error => {
         console.error('Erreur de récupération des questions:', error);
     });
+
+document.getElementById("submit_button").addEventListener("click", async function (event) {
+    event.preventDefault();    
+    const formData = new FormData(document.getElementById("newFormVote")); 
+    try {
+        const response = await fetch("/Post_sondage", {
+            method: "POST",
+            body: formData,
+        });
+        const result = await response.json();
+        if (response.ok) {
+            alert(result.message); // Affiche l'alerte Windows avec le message du serveur
+            // refreshQuestionsContainer(); // Actualise le  après que l'utilisateur ferme l'alerte
+            location.reload();
+        } else {
+            alert(`Erreur : ${result.error}`);
+        }
+    } catch (error) {
+        alert("Une erreur est survenue. Veuillez réessayer.");
+    }
+});
+
+function refreshQuestionsContainer() {
+    fetch("/get_questions") // Mettez l'URL pour récupérer les questions à jour
+        .then(response => response.text())
+        .then(html => {
+            console.log("Nouveau contenu des questions :", html);
+            document.getElementById("questions-container").innerHTML = html;
+        })
+        .catch(error => console.error("Erreur lors de la mise à jour :", error));
+}

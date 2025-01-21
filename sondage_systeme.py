@@ -2,13 +2,13 @@ import time
 from unittest import result
 import time
 from flask import request, jsonify
-from flask_jwt_extended import current_user
-from flask_login import login_required
+from flask_login import login_required, current_user
 from app import *
 from app import app
 from app import mongo
 from systeme_log import *
 from bson.objectid import ObjectId
+from datetime import datetime
 
 @app.route('/Post_sondage', methods=['POST'])
 @login_required
@@ -16,19 +16,44 @@ def post_sondage():
     # je récupère les datas du formulaire
     title = request.form['quest_title']
     choices = request.form.getlist('questions[0][choices][]')
+    # on initalise la date d'expiration
+    expiration_date_str = request.form.get('expiration_date')
+    if not expiration_date_str:
+        return jsonify({"status": 400, "error": "La date d'expiration est obligatoire."}), 400
+    def parse_date(date_str):
+        formats = ['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S']
+        for fmt in formats:
+            try:
+                return datetime.strptime(date_str, fmt)
+            except ValueError:
+                continue
+        return None
+
+    expiration_date = parse_date(expiration_date_str)
+    if not expiration_date:
+        return jsonify({"status": 400, "error": "Format de la date d'expiration invalide."}), 400
+
+    # Vérifier si la date d'expiration est dans le passé
+    if expiration_date <= datetime.now():
+        return jsonify({"status": 400, "error": "La date d'expiration doit être dans le futur."}), 400
+
     print(f"Titre du sondage: {title}")
     print(f"Choix de réponses: {choices}")
+    print(f"Date d'expiration: {expiration_date}")
 
     #Une fois récupère, je crée un jeu de donnée pour préparer la requete sur la collection question global
     sondage_data = {
         "title_question": title,
         "choices": choices,
-        "Créateur" : current_user.username,
+        "creator" : current_user.username,
+        "expiration_date": expiration_date,
+        "creation_date": datetime.now()
     }
     #jeux de donnée pour la session de l'utilisateur
     my_sondage_data = {
         "title_question": title,
         "choices": choices,
+        "expiration_date": expiration_date
     }
 
     #insertions du jeu de donnée dans la collection users
@@ -41,11 +66,13 @@ def post_sondage():
     result_in_question = mongo.db.questions.insert_one(sondage_data)
     return jsonify(
         {
-            "test": "success",
+            "status": "success",
             "titre_question": title,
             "choices": choices,
+            "expiration_date": expiration_date.strftime('%Y-%m-%d %H:%M:%S'),
+            "message": "Sondage créé avec succès."
         }
-    )
+    ), 200
 @app.route('/Vote', methods=['POST'])
 @login_required  # Retirez temporairement pour tester
 def vote():
@@ -87,7 +114,6 @@ def vote():
             existing_vote["choices"] = choices
         else:
             user_votes.append(user_vote_entry)
-
         # Logique Condorcet
         options = list(choices.keys())
         pairwise_results = {
