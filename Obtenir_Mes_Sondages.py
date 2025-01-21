@@ -6,7 +6,7 @@ from app import mongo
 from systeme_log import *
 
 #charger le template html
-@app.route('/templte_my_questions', methods=['GET'])
+@app.route('/template_my_questions', methods=['GET'])
 @login_required
 def template_my_questions():
     return render_template('my_quest.html')

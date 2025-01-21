@@ -25,7 +25,7 @@ def liste_sondage():
         question_data['_id'] = str(question['_id'])
         questions.append(question_data)
 
-    return jsonify(questions_data)  # Retourne la liste des questions sans l'_id
+    return jsonify(questions)  # Retourne la liste des questions sans l'_id
 
 
 @app.route('/my_questions', methods=['GET'])
