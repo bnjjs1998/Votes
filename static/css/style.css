@@ -18,6 +18,7 @@
     --blue-light:#2c6aa0;
     --madder: #A31621;
     --madder-light: #cd1323;
+    --madder-dark: #7e050f;
 
     --white: #E9E9E9;
     --black: #282828;
@@ -30,6 +31,7 @@
     --transition-property-fast: all ease .1s;
 
     /* Spaces */
+    --thin-gap: .2rem;
     --light-gap: .6rem;
     --medium-gap: 1rem;
     --big-gap: 2rem;
@@ -73,6 +75,8 @@ main{
 
 .button:active, .button:focus {
     outline: 2px solid var(--blue);
+    /* background-color: var(--blue-light); */
+    border: var(--blue) 2px solid;
     transition: var(--transition-property-fast);
 }
 
@@ -89,7 +93,12 @@ main{
     text-transform: uppercase;
     font-weight: 800;
 }
-
+.body-wrapper{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+}
 header{
     padding-left: 50px;
     display: flex;
@@ -98,7 +107,8 @@ header{
     height: 50px;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--medium-gap);
+    position: sticky;
+    top: 0;
 }
 .menu{
     display: flex;
@@ -119,7 +129,6 @@ footer {
     background-color: var(--black);
     color: var(--white);
     width: 100%;
-    margin-top: var(--big-gap);
     position: sticky;
     bottom: 0;
 }
@@ -181,6 +190,7 @@ footer {
     flex-direction: column;
     gap: .2rem;
     width: 100%;
+    margin-bottom: var(--thin-gap);
 }
 
 .input_container label{
@@ -216,22 +226,27 @@ input:focus{
 .deconnexion{
     background-color: var(--madder);
     color: var(--alabaster);
-    border: var(--madder) 2px solid;
+    border: var(--madder-dark) 2px solid;
     border-radius: var(--border-radius-0);
     width: 100%;
     text-transform: uppercase;
     font-weight: 800;
 }
 
-.deconnexion:hover {
+.deconnexion:hover{
     background-color: var(--madder-light);
     color: var(--white);
+}
+
+.deconnexion:active, .deconnexion:focus{
+    border: var(--madder) 2px solid;
+    outline: 2px solid var(--madder);
     transition: var(--transition-property);
 }
 main h1{
     font-size: var(--main-font-size);
     color: var(--black);
-    margin-bottom: var(--medium-gap);
+    margin-bottom: var(--thin-gap);
 }
 .username{
     font-size: var(--main-font-size);
@@ -240,11 +255,11 @@ main h1{
 .dashboard{
     display: flex;
     flex-direction: row;
-    height: calc(100vh - 60px);
+    height: 75vh;
     align-items: flex-start;
     justify-content: space-between;
     padding: var(--padding);
-    position: relative;
+    overflow-y: auto;
 }
 
 .dashboard aside{
@@ -258,6 +273,7 @@ main h1{
     flex-direction: column;
     width: 50%;
     position: sticky;
+    top: 0;
 }
 
 .newFormVote_container h2{
@@ -293,12 +309,16 @@ main h1{
     display: flex;
     flex-direction: column;
     gap: var(--medium-gap);
+    overflow-y: auto;
 }
 aside h2{
     font-size: var(--secondary-font-size);
     font-weight: 600;
     color: var(--blue);
-
+    margin-bottom: var(--light-gap);
+    position: sticky;
+    top: 0;
+    background-color: var(--white);
 }
 
 aside h3{

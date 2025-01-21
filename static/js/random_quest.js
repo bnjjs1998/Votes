@@ -16,7 +16,7 @@ fetch('/get_questions', {
             questionForm.setAttribute('method', 'POST');
             questionForm.setAttribute('action', '/Post_vote');
 
-            const title = document.createElement('h2');
+            const title = document.createElement('h3');
             title.textContent = question.title_question;
             questionForm.appendChild(title);
 
@@ -29,11 +29,12 @@ fetch('/get_questions', {
 
             // Parcours des choix dans la question
             question.choices.forEach((choice, index) => {
-
+                const div = document.createElement('div');
+                div.classList.add('input_container');
                 //Création des différents labels pour l'input
                 const label = document.createElement('label');
                 label.setAttribute('for', `choice${question._id}_${index}`);
-                label.textContent = `Option ${choice} :`;
+                label.textContent = `${index}. ${choice} :`;
 
 
                 //Création de l'input en fonction de ce quil trouve dans le document mongo
@@ -51,13 +52,15 @@ fetch('/get_questions', {
                     answers.choices[choice] = parseInt(input.value, 10);  // Enregistre chaque choix avec son score
                 });
 
-                questionForm.appendChild(label);
-                questionForm.appendChild(input);
+                questionForm.appendChild(div);
+                div.appendChild(label);
+                div.appendChild(input);
             });
 
             const buttonPostVote = document.createElement('button');
             buttonPostVote.textContent = 'Vote';
             buttonPostVote.setAttribute('type', 'submit');
+            buttonPostVote.classList.add('button');
             questionForm.appendChild(buttonPostVote);
 
             questionsContainer.appendChild(questionForm);

@@ -6,73 +6,68 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <header>
-        <h2>{{ user }}</h2>
-        <div class="menu">
-            <form action="/profile">
-                <button class="button">Profile</button>
-            </form>
-            <form action="/my_questions" method="get">
-                <button class="button">My Question</button>
-            </form>
-            <form action="/get_questions" method="get">
-                <button class="button"> All questions</button>
-            </form>
-            <form action="/counter">
-                <button class="button">Counter</button>
-            </form>
-            <form action="/the_quest" method="get">
-                <button class="button">The questions</button>
-            </form>
-            <form action="{{ url_for('logout') }}" method="POST">
-                <button type="submit" class="button deconnexion">Se déconnecter</button>
-            </form>
-
-        </div>
-    </header>
-
-    <main>
-        <br>
-        <!-- Conditionner cet affichage. (True, sssi on a les droits) -->
-        <form action="/get_allprofile" method="get" >
-            <button class="button">Liste des inscriptions</button>
-        </form>
-        <!-- Fin de commentaire -->
-    <h1>Bienvenue sur votre tableau de bord, <span class="username" >{{ user }} </span></h1>
-    <section class="dashboard">
-
-        <div class="newFormVote_container">
-            <form action="/Post_sondage" method="post" class="form_container" id="newFormVote">
-                <h2>Ajouter un sondage</h2>
+    <div class="body-wrapper">
+        <header>
+            <h2>{{ user }}</h2>
+            <div class="menu">
+                <form action="/profile">
+                    <button class="button">Profile</button>
+                </form>
+                <form action="/my_questions" method="get">
+                    <button class="button">My Question</button>
+                </form>
+                <form action="/get_questions" method="get">
+                    <button class="button"> All questions</button>
+                </form>
+                <form action="/counter">
+                    <button class="button">Counter</button>
+                </form>
+                <form action="/the_quest" method="get">
+                    <button class="button">The questions</button>
+                </form>
+                <form action="{{ url_for('logout') }}" method="POST">
+                    <button type="submit" class="button deconnexion">Se déconnecter</button>
+                </form>
                 
-                <!-- Titre du sondage -->
-                <div class="input_container">
-                    <label for="surveyTitle">Titre du sondage</label>
-                    <input class="Quest_sub" id="surveyTitle" name="quest_title" type="text" required placeholder="Titre du sondage">
-                </div>
-                
-                <!-- Question et choix -->
-                <fieldset>
-                    <legend>Choix de réponses</legend>
-                    
-                    <div class="question">
-                        <div class="input_container">
-                            
-                            <label for="choice1">Choix 1</label>
-                            <input id="choice1" class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 1" required>
-                        </div>
-                        <div class="input_container">
-                            
-                            <label for="choice2">Choix 2</label>
-                            <input id="choice2" class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 2" required>
-                        </div>
-                        <div class="input_container">
-                            
-                            <label for="choice3">Choix 3</label>
-                            <input id="choice3" class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 3" required>
-                        </div>
-                        <div class="input_container">
+            </div>
+        </header>
 
+        <main>
+            <h1>Bienvenue sur votre tableau de bord, <span class="username" >{{ user }} </span></h1>
+            <section class="dashboard">
+                
+                <div class="newFormVote_container">
+                    <form action="/Post_sondage" method="post" class="form_container" id="newFormVote">
+                        <h2>Ajouter un sondage</h2>
+                        
+                        <!-- Titre du sondage -->
+                        <div class="input_container">
+                            <label for="surveyTitle">Titre du sondage</label>
+                            <input class="Quest_sub" id="surveyTitle" name="quest_title" type="text" required placeholder="Titre du sondage">
+                        </div>
+                        
+                        <!-- Question et choix -->
+                        <fieldset>
+                            <legend>Choix de réponses</legend>
+                            
+                            <div class="question">
+                                <div class="input_container">
+                                    
+                                    <label for="choice1">Choix 1</label>
+                                    <input id="choice1" class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 1" required>
+                                </div>
+                                <div class="input_container">
+                                    
+                                    <label for="choice2">Choix 2</label>
+                                    <input id="choice2" class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 2" required>
+                                </div>
+                                <div class="input_container">
+                                    
+                                    <label for="choice3">Choix 3</label>
+                                    <input id="choice3" class="choice_input_sub" name="questions[0][choices][]" type="text" placeholder="Choix 3" required>
+                        </div>
+                        <div class="input_container">
+                            
                             <label for="expiration_date">Date d'expiration :</label>
                             <input type="datetime-local" id="expiration_date" name="expiration_date" required>
                         </div>
@@ -81,21 +76,20 @@
                 </fieldset>
             </form>
         </div>
-        <aside class="aside_main" id="questions-container">
-            <div class="generatedQuestions">
-                <h2>Sondages générés</h2>
-                <!-- Les titres des questions seront insérés ici -->
-                <button onclick="generate_questions()" class="button">Générer</button>
+        <aside class="aside_main">
+            <h2>Sondages récents disponible.</h2>
+            <div id="questions-container">
             </div>
         </aside>
-    </section>
-    </main>
-    <!-- Le Footer-->
-    <footer>
+            </section>
+        </main>
+
+        <footer>
             <h2>Le footer</h2>
-    </footer>
-    <!-- Ici, ça sera l'endroit d'import de mes différents scripts -->
-    <script src="{{ url_for('static', filename='js/random_quest.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/quest.js') }}"></script>
+        </footer>
+    </div>
+<!-- Ici, ça sera l'endroit d'import de mes différents scripts -->
+<script src="{{ url_for('static', filename='js/random_quest.js') }}"></script>
+<script src="{{ url_for('static', filename='js/quest.js') }}"></script>
 </body>
 </html>

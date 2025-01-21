@@ -45,7 +45,8 @@ def post_sondage():
         "title_question": title,
         "choices": choices,
         "creator" : current_user.username,
-        "expiration_date": expiration_date
+        "expiration_date": expiration_date,
+        "creation_date": datetime.now()
     }
     #jeux de donnée pour la session de l'utilisateur
     my_sondage_data = {

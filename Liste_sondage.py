@@ -17,7 +17,7 @@ def the_quest():
 @app.route('/get_questions', methods=['GET'])
 @login_required
 def liste_sondage():
-    all_question = mongo.db.questions.find()
+    all_question = mongo.db.questions.find().sort('creation_date', -1).limit(10)
 
     # Convertir les résultats MongoDB en liste de dictionnaires et ajouter l'ID de chaque question
     questions = []
