@@ -61,32 +61,63 @@ def update_title():
     }), 200
 
 
-
-
 @app.route('/update_choices', methods=['POST'])
 @login_required
 def update_choice():
-    data = request.get_json()
-    data_title = data.get('Title')
-    data_choices = data['updatedChoices']
-    data_choices_new = data.get
-    print(data_choices)
-    # Extraire toutes les `newValue`
-    new_values = [choice.get('newValue') for choice in data_choices]
-    print(new_values)
+    try:
+        # Récupérer les données JSON
+        data = request.get_json()
+        print("Données reçues :", data)
 
-    # Je vérifie que la question n'est pas en public
-    result_in_question = mongo.db.questions.find_one({'title': data_title})
-    if result_in_question:
+        data_title = data.get('Titre')
+        choices = data.get('choices', [])
+        user_id = current_user.id  # UUID, pas ObjectId
+
+        if not user_id:
+            return jsonify({"success": False, "error": "L'utilisateur n'est pas connecté."}), 401
+
+        if not data_title:
+            return jsonify({"success": False, "error": "Le titre est requis."}), 400
+
+        if not choices:
+            return jsonify({"success": False, "error": "Les choix sont requis."}), 400
+
+        # Extraire les nouveaux choix
+        new_values = [choice['newValue'] for choice in choices if 'newValue' in choice]
+        print("Nouveaux choix extraits :", new_values)
+
+        if not new_values:
+            return jsonify({
+                "success": False,
+                "error": "Aucun choix valide trouvé."
+            }), 400
+
+        # Mise à jour MongoDB
+        result = mongo.db.users.update_one(
+            {
+                '_id': user_id,  # Utiliser directement l'UUID
+                'Mes sondages.title_question': data_title
+            },
+            {
+                '$set': {'Mes sondages.$.choices': new_values}
+            }
+        )
+
+        if result.matched_count == 0:
+            return jsonify({
+                "success": False,
+                "error": "Sondage introuvable pour cet utilisateur."
+            }), 404
+
         return jsonify({
-            "message": "la question est en public les infos ne peuvent pas etre modifié"
-        })
+            "success": True,
+            "message": f"Les choix pour le sondage '{data_title}' ont été mis à jour avec succès.",
+            "new_values": new_values
+        }), 200
 
-    return jsonify({
-        "hello": data
-    })
-
-
+    except Exception as e:
+        print("Erreur inattendue :", str(e))
+        return jsonify({"success": False, "error": "Une erreur interne s'est produite."}), 500
 
 @app.route('/delete', methods=['POST'])
 @login_required

@@ -165,8 +165,8 @@ fetch('/get_sondage_current_id', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        Titre: question.title_question,
-                        updatedChoices
+                        Titre : question.title_question,
+                        choices :updatedChoices
                     })
                 })
                     .then(response => {
