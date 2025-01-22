@@ -79,12 +79,10 @@ fetch('/get_sondage_current_id', {
                     }
                 });
 
-
                 // je vérifie l'état de isDuplicate
                if (isDuplicate === true) {
                    return;
                }
-
 
                 fetch('/update_title', {
                             method: 'POST',
@@ -108,13 +106,6 @@ fetch('/get_sondage_current_id', {
                                 alert("Une erreur s'est produite lors de la mise à jour des choix.");
                             });
 
-
-
-
-
-
-
-
             });
 
             // Ajout des éléments de la section titre
@@ -122,6 +113,8 @@ fetch('/get_sondage_current_id', {
             titleSection.appendChild(titleInput);
             titleSection.appendChild(updateTitleButton);
             sondageDiv.appendChild(titleSection);
+
+
 
             // Génération des choix
             const choicesContainer = document.createElement('div');
@@ -152,6 +145,30 @@ fetch('/get_sondage_current_id', {
                         const newChoice = choiceInput.value.trim();
                         if (newChoice === "") {
                             alert("Le choix ne peut pas être vide !");
+                            return;
+                        }
+
+                        let Choice_duplicate = false
+                        let empty_choice = false;
+
+                        let check_choice = question.choices
+
+                        check_choice.forEach(choice => {
+                            console.log(choice);
+
+                            if(newChoice === "") {
+                                empty_choice = true
+                            }
+
+                            if(newChoice === choice) {
+                                Choice_duplicate = true
+                            }
+                        })
+
+                        if(empty_choice === true) {
+                            return;
+                        }
+                        if(check_choice === true) {
                             return;
                         }
 
@@ -272,7 +289,7 @@ fetch('/get_sondage_current_id', {
                  state = !state
 
                  // Loguer "Privé" ou "Public" en fonction de l'état
-                console.log(state ? 'Public' : 'Privé');
+                 console.log(state ? 'Public' : 'Privé');
             });
 
             // Ajouter les boutons au sondage
