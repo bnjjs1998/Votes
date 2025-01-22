@@ -6,7 +6,7 @@ from app import *
 from app import app
 from app import mongo
 from request_friend import collections_user
-
+#
 @app.route('/update_title', methods=['POST'])
 @login_required
 def update_title():
