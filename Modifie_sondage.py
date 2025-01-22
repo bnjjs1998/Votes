@@ -119,16 +119,50 @@ def update_choice():
         print("Erreur inattendue :", str(e))
         return jsonify({"success": False, "error": "Une erreur interne s'est produite."}), 500
 
+from flask import jsonify, request
+from flask_login import login_required, current_user
+from bson import ObjectId
+
 @app.route('/delete', methods=['POST'])
 @login_required
 def delete():
-    data = request.get_json()
-    data_title = data.get("Titre")
-    print(data_title)
-    print(data)
-    return jsonify({
-        'success': True
-    })
+    try:
+        # Récupérer les données de la requête
+        data = request.get_json()
+        data_title = data.get("Titre")
+        user_id = current_user.id
+
+        if not data_title:
+            return jsonify({"success": False, "error": "Titre requis."}), 400
+
+        # Suppression d'un sondage dans `Mes sondages`
+        result = mongo.db.users.find_one_and_update(
+            {
+                "_id": user_id  # Rechercher l'utilisateur par ID
+            },
+            {
+                "$pull": {
+                    "Mes sondages": {"title_question": data_title}  # Supprimer le sondage par titre
+                }
+            },
+            return_document=True  # Retourner le document après mise à jour
+        )
+
+        if not result:
+            return jsonify({
+                "success": False,
+                "error": "Utilisateur ou sondage introuvable."
+            }), 404
+
+        return jsonify({
+            "success": True,
+            "message": f"Le sondage '{data_title}' a été supprimé avec succès.",
+            "updated_user": result
+        }), 200
+
+    except Exception as e:
+        print("Erreur inattendue :", str(e))
+        return jsonify({"success": False, "error": "Une erreur interne s'est produite."}), 500
 
 
 
