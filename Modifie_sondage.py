@@ -6,85 +6,40 @@ from app import *
 from app import app
 from app import mongo
 from request_friend import collections_user
-@app.route('/update_choices', methods=['POST'])
-@login_required
-def update_choices():
-    try:
-        # Récupération des données envoyées par le frontend
-        data = request.get_json()
-
-
-
-
-    except Exception as e:
-        print(f"Erreur lors de la mise à jour des choix : {e}")
-        return jsonify({
-            "success": False,
-            "message": "Une erreur interne est survenue."
-        }), 500
-
 
 
 
 @app.route('/update_title', methods=['POST'])
 @login_required
 def update_title():
-    try:
-        # Récupération des données envoyées par le frontend
-        data = request.get_json()
-        old_title = data.get('old_title')  # Titre existant
-        new_title = data.get('new_title')  # Nouveau titre
-
-        if not old_title or not new_title:
-            return jsonify({
-                "success": False,
-                "message": "Les deux titres (ancien et nouveau) sont requis."
-            }), 400
-
-        # Mise à jour dans la collection MongoDB
-        result = mongo.db.users.update_one(
-            {"_id": current_user.id, "Mes sondages.title_question": old_title},
-            {"$set": {"Mes sondages.$.title_question": new_title}}
-        )
-
-        if result.modified_count > 0:
-            return jsonify({
-                "success": True,
-                "message": "Le titre a été mis à jour avec succès.",
-                "old_title": old_title,
-                "new_title": new_title
-            }), 200
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Aucun titre correspondant trouvé ou mise à jour non effectuée."
-            }), 404
-
-    except Exception as e:
-        print(f"Erreur lors de la mise à jour du titre : {e}")
-        return jsonify({
-            "success": False,
-            "message": "Une erreur interne est survenue."
-        }), 500
-
-
-@app.route('/Delete_btn', methods=['POST'])
-@login_required
-def delete_btn():
     data = request.get_json()
-    # Afficher les données reçues pour déboguer
-    print(f"Data received for delete: {data}")
-    # Validation des données
-    title = data.get('question_title')
-    print(title)
-
-
+    print(data)
 
     return jsonify({
-        "success": True
+        "hello": data
     })
 
 
+@app.route('/update_choices', methods=['POST'])
+@login_required
+def update_choice():
+    data = request.get_json()
+    print(data)
+
+    return jsonify({
+        "hello": data
+    })
+
+
+
+@app.route('/delete')
+@login_required
+def delete():
+    data = request.get_json()
+    print(data)
+    return jsonify({
+        'success': True
+    })
 
 
 

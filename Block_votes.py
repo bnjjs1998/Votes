@@ -74,3 +74,13 @@ def block_btn():
         "success": True,
         "message": f"Le sondage '{title}' a été bloqué avec succès."
     })
+
+
+@app.route('/block', methods=['POST'])
+@login_required
+def block():
+    data = request.get_json()
+    print(f"Data received for Block result: {data}")
+    return jsonify({
+
+    })
