@@ -25,7 +25,6 @@ fetch('/get_sondage_current_id', {
             const sondageDiv = document.createElement('div');
             sondageDiv.classList.add('sondage_item');
             sondageDiv.style.marginBottom = '20px';
-
             // Section titre
             const titleSection = document.createElement('div');
             titleSection.classList.add('title_quest');
@@ -52,8 +51,6 @@ fetch('/get_sondage_current_id', {
                     alert("Le titre ne peut pas être vide !");
                     return;
                 }
-
-
                 fetch('/update_title', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -64,20 +61,29 @@ fetch('/get_sondage_current_id', {
                 })
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error(`HTTP error! Status: ${response.status}`);
+                            return response.json().then(data => {
+                                throw new Error(data.error || `HTTP error! Status: ${response.status}`);
+                            });
                         }
                         return response.json();
                     })
                     .then(data => {
-                        console.log("Titre mis à jour avec succès :", data);
-                        question.title_question = newTitle;
-                        titleHeading.textContent = newTitle;
+                        if (data.success) {
+                            // Mise à jour de l'interface avec le nouveau titre
+                            question.title_question = newTitle;
+                            titleHeading.textContent = newTitle;
+                            console.log("Titre mis à jour avec succès :", data.message);
+                        } else {
+                            console.log(data.error || "Erreur lors de la mise à jour du titre !");
+                        }
                     })
                     .catch(error => {
-                        console.error("Erreur lors de la mise à jour du titre :", error);
-                        alert("Une erreur s'est produite lors de la mise à jour du titre.");
+                        console.error("Erreur :", error.message);
                     });
+
+
             });
+
 
             titleSection.appendChild(titleHeading);
             titleSection.appendChild(titleInput);
