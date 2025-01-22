@@ -9,7 +9,7 @@ from systeme_log import *
 @app.route('/template_my_questions', methods=['GET'])
 @login_required
 def template_my_questions():
-    return render_template('my_quest.html')
+    return render_template('my_questions.html')
 
 
 @app.route('/get_sondage_current_id', methods=['GET'])

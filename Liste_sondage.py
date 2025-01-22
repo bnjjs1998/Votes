@@ -8,12 +8,20 @@ from app import mongo
 #retourner un élément aléatoire
 
 
-@app.route('/the_quest')
+@app.route('/get_all_questions', methods=['GET'])
 @login_required
-def the_quest():
-    return  render_template('the_question.html')
+def get_all_questions():
+    all_question = mongo.db.questions.find()
 
-@app.route('/get_questions', methods=['GET'])
+    questions = []
+    for question in all_question:
+        question_data = question.copy()
+        question_data['_id'] = str(question['_id'])
+        questions.append(question_data)
+
+    return render_template('all_questions.html', questions=questions, user=current_user.username)
+
+@app.route('/get_last_questions', methods=['GET'])
 @login_required
 def liste_sondage():
     all_question = mongo.db.questions.find().sort('creation_date', -1).limit(10)

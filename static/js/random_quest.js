@@ -1,5 +1,5 @@
 
-fetch('/get_questions', {
+fetch('/get_last_questions', {
     method: 'GET',
 })
     .then(response => {
@@ -117,7 +117,7 @@ document.getElementById("submit_button").addEventListener("click", async functio
 });
 
 function refreshQuestionsContainer() {
-    fetch("/get_questions") // Mettez l'URL pour récupérer les questions à jour
+    fetch("/get_last_questions") // Mettez l'URL pour récupérer les questions à jour
         .then(response => response.text())
         .then(html => {
             console.log("Nouveau contenu des questions :", html);
