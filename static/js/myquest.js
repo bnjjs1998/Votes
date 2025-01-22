@@ -222,7 +222,7 @@ fetch('/get_sondage_current_id', {
             blockVotesButton.style.marginLeft = '10px';
 
             blockVotesButton.addEventListener('click', () => {
-                fetch('/block', {
+                fetch('/B_btn', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

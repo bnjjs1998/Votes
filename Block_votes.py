@@ -12,68 +12,83 @@ from request_friend import collections_user
 @app.route('/B_btn', methods=['POST'])
 @login_required
 def block_btn():
-    data = request.get_json()
-
-    # Afficher les données reçues pour débogage
-    print(f"Data received for Block result: {data}")
-
-    # Validation des données
-    title = data.get('question_title')
-
     try:
-        # Vérifier si la question existe
-        question = mongo.db.questions.find_one({'title_question': title})
-        question_id = question['_id']
-        print(f"Question ID : {question_id}")
-
-        #on va regarder si la question est pas déja archivé
-
-        list_document_block = mongo.db.scrutin_archive.find_one({'_id': question_id})
-        if list_document_block :
-            #actualulis
+        # Récupérer les données envoyées par le frontend
+        data = request.get_json()
+        title = data.get('Titre')  # Correspond à 'question.title_question' envoyé
+        if not title:
             return jsonify({
-                "message": "Sondage déja blocké",
-                'status': 'success',
-            })
+                "success": False,
+                "message": "Le titre de la question est requis."
+            }), 400
 
-        # Changer le statut de la question
-        mongo.db.questions.update_one(
+        # Vérifier si la question existe dans la collection `questions`
+        question = mongo.db.questions.find_one({'title_question': title})
+        if not question:
+            return jsonify({
+                "success": False,
+                "message": "La question spécifiée n'existe pas."
+            }), 404
+
+        question_id = question['_id']
+        print(f"ID de la question trouvée : {question_id}")
+
+        # Vérifier si la question est déjà archivée dans `scrutin_archive`
+        archived_question = mongo.db.scrutin_archive.find_one({'_id': question_id})
+        if archived_question:
+            return jsonify({
+                "success": True,
+                "message": "Le sondage est déjà bloqué et archivé."
+            }), 200
+
+        # Mettre à jour le statut de la question comme "blocked"
+        update_result = mongo.db.questions.update_one(
             {'_id': question_id},
             {'$set': {'status': 'blocked'}}
         )
-        # Vérifier si le statut a été mis à jour
+        if update_result.modified_count == 0:
+            return jsonify({
+                "success": False,
+                "message": "Impossible de bloquer la question."
+            }), 400
+
+        # Vérifier que le statut a bien été mis à jour
         updated_question = mongo.db.questions.find_one({'_id': question_id})
-        if updated_question.get('status') == 'blocked':
-            print("Mise à jour réussie : le statut est maintenant 'blocked'.")
-            result_filtre = list(mongo.db.questions.aggregate([
-                {'$match': {'_id': question_id}},  # Correctement fermé
-                {'$merge': {'into': 'scrutin_archive'}}  # Supprimé l'espace dans le nom
-            ]))
-            # Vérifié que le document est bien archivé
-            document_block = mongo.db.scrutin_archive.find_one({'_id': question_id})
-            if document_block:
-                print('Le document à bien été archivé')
-                # On peut suprimer le document de question
-                result_delete = mongo.db.questions.delete_one({'_id': question_id})
-                if result_delete:
-                    print('Le document à bien été supprimé de la collection question')
-                    #On fait la requête
-                    delete_result = mongo.db.questions.delete_one({'_id': question_id})
-                    if delete_result:
-                        print('La question à bien été transféré aux archives')
+        if updated_question.get('status') != 'blocked':
+            return jsonify({
+                "success": False,
+                "message": "La mise à jour du statut a échoué."
+            }), 500
+
+        print(f"Le statut de la question est maintenant 'blocked'.")
+
+        # Archiver la question dans `scrutin_archive`
+        mongo.db.scrutin_archive.insert_one(updated_question)
+        print("La question a été archivée avec succès.")
+
+        # Supprimer la question de la collection `questions`
+        delete_result = mongo.db.questions.delete_one({'_id': question_id})
+        if delete_result.deleted_count == 0:
+            return jsonify({
+                "success": False,
+                "message": "La suppression de la question a échoué."
+            }), 500
+
+        print("La question a été supprimée de la collection 'questions'.")
+
+        # Retourner une réponse en cas de succès
+        return jsonify({
+            "success": True,
+            "message": f"Le sondage '{title}' a été bloqué, archivé et supprimé avec succès."
+        }), 200
 
     except Exception as e:
-        print(f"Erreur lors de l'accès à MongoDB : {e}")
+        print(f"Erreur lors du traitement de la requête : {e}")
         return jsonify({
             "success": False,
             "message": "Une erreur interne est survenue."
         }), 500
 
-    # Retourner une réponse en cas de succès
-    return jsonify({
-        "success": True,
-        "message": f"Le sondage '{title}' a été bloqué avec succès."
-    })
 
 
 @app.route('/block', methods=['POST'])
