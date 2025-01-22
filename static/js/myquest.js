@@ -186,8 +186,7 @@ fetch('/get_sondage_current_id', {
             deleteButton.textContent = 'Supprimer la question';
             deleteButton.style.marginTop = '10px';
             deleteButton.addEventListener('click', () => {
-                if (confirm("Êtes-vous sûr de vouloir supprimer cette question ?")) {
-                    fetch('/delete_question', {
+                    fetch('/delete', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -202,13 +201,11 @@ fetch('/get_sondage_current_id', {
                         })
                         .then(data => {
                             console.log("Question supprimée avec succès :", data);
-                            sondageDiv.remove(); // Supprimer la question du DOM
                         })
                         .catch(error => {
                             console.error("Erreur lors de la suppression de la question :", error);
                             alert("Une erreur s'est produite lors de la suppression de la question.");
                         });
-                }
             });
 
             sondageDiv.appendChild(deleteButton);
@@ -253,13 +250,13 @@ fetch('/get_sondage_current_id', {
 
             toggleVisibilityButton.addEventListener('click', () => {
                 toggleVisibilityButton.textContent = state ? 'Rendre Public' : 'Rendre Privé';
-                state = !state;
-                fetch('/toggle_visibility', {
+                state = state === 'Public' ? 'Privé' : 'Public';
+                fetch('/Change_state_btn', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         Titre: question.title_question,
-                        is_public: state
+                        state : state
                     })
                 })
                     .then(response => {
@@ -272,8 +269,7 @@ fetch('/get_sondage_current_id', {
                         console.log("Visibilité mise à jour avec succès :", data);
                     })
                     .catch(error => {
-                        console.error("Erreur lors de la mise à jour de la visibilité :", error);
-                        alert("Une erreur s'est produite lors de la mise à jour de la visibilité.");
+                        console.error("Erreur lors de la mise à jour de la visibilité :", error)
                     });
             });
 
