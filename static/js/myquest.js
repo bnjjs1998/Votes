@@ -11,10 +11,16 @@ fetch('/get_sondage_current_id', {
     .then(data => {
         console.log("Données reçues:", data);
 
+
+
+
         const container = document.getElementById('my_quest');
         container.innerHTML = ""; // Nettoyage du conteneur avant ajout
 
         const sondages = data.Sondage;
+        // Loguer tous les titres des sondages
+
+
 
         if (sondages.length === 0) {
             container.textContent = "Aucun sondage disponible pour l'instant.";
@@ -51,38 +57,64 @@ fetch('/get_sondage_current_id', {
             updateTitleButton.textContent = 'Mettre à jour le titre';
             updateTitleButton.setAttribute('type', 'button');
 
-            updateTitleButton.addEventListener('click', () => {
+           updateTitleButton.addEventListener('click', () => {
+                // Récupérer le nouveau titre
                 const newTitle = titleInput.value.trim();
+
+                // Vérification si le titre est vide
                 if (newTitle === "") {
                     alert("Le titre ne peut pas être vide !");
                     return;
                 }
 
+                console.log("Liste des titres des sondages :");
+                let isDuplicate = false;
+
+                sondages.forEach((sondage) => {
+                    console.log(`${sondage.title_question}`);
+
+                    if(newTitle === sondage.title_question) {
+                        console.log(newTitle,"'", 'ce titre existe deja',"'");
+                        isDuplicate = true;
+                    }
+                });
+
+
+                // je vérifie l'état de isDuplicate
+               if (isDuplicate === true) {
+                   return;
+               }
+
+
                 fetch('/update_title', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        question_id: question.id,
-                        old_title: old_title,
-                        new_title: newTitle
-                    })
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! Status: ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log("Titre mis à jour avec succès :", data);
-                        alert("Le titre a été mis à jour avec succès !");
-                        old_title = newTitle;
-                        titleHeading.textContent = newTitle;
-                    })
-                    .catch(error => {
-                        console.error("Erreur lors de la mise à jour du titre :", error);
-                        alert("Une erreur s'est produite lors de la mise à jour du titre.");
-                    });
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                old_Titre: old_title,
+                                new_Titre: newTitle,
+                            })
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`HTTP error! Status: ${response.status}`);
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+
+                            })
+                            .catch(error => {
+                                console.error("Erreur lors de la mise à jour du choix :", error);
+                                alert("Une erreur s'est produite lors de la mise à jour des choix.");
+                            });
+
+
+
+
+
+
+
+
             });
 
             // Ajout des éléments de la section titre
@@ -229,14 +261,18 @@ fetch('/get_sondage_current_id', {
             toggleVisibilityButton.textContent = question.is_public ? 'Rendre Privé' : 'Rendre Public';
             toggleVisibilityButton.style.marginLeft = '10px';
 
+            let state = question.is_public
+
             toggleVisibilityButton.addEventListener('click', () => {
                  if (toggleVisibilityButton.textContent === 'Rendre Public') {
                      toggleVisibilityButton.textContent = 'Rendre Privé';
                  } else {
                      toggleVisibilityButton.textContent = 'Rendre Public';
                  }
+                 state = !state
 
-                console.log('hello')
+                 // Loguer "Privé" ou "Public" en fonction de l'état
+                console.log(state ? 'Public' : 'Privé');
             });
 
             // Ajouter les boutons au sondage
