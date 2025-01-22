@@ -283,10 +283,4 @@ fetch('/get_sondage_current_id', {
     })
     .catch(error => {
         console.error("Erreur lors de la récupération des sondages:", error);
-        const container = document.getElementById('my_quest');
-        container.innerHTML = `
-            <div style="color: red; font-weight: bold;">
-                Une erreur s'est produite lors du chargement des sondages. Veuillez réessayer plus tard.
-            </div>
-        `;
     });
