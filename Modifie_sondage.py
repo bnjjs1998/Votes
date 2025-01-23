@@ -154,6 +154,13 @@ def delete():
                 "error": "Utilisateur ou sondage introuvable."
             }), 404
 
+
+        # Maintenant, on va vérifier que la question ne se trouve pas non plus dans la question4
+
+        result_in_question = mongo.db.users.find_one_and_update(
+
+        )
+
         return jsonify({
             "success": True,
             "message": f"Le sondage '{data_title}' a été supprimé avec succès.",
@@ -164,20 +171,69 @@ def delete():
         print("Erreur inattendue :", str(e))
         return jsonify({"success": False, "error": "Une erreur interne s'est produite."}), 500
 
-
-
 @app.route('/Change_state_btn', methods=['POST'])
+@login_required
 def change_state_btn():
+    user_id = current_user.id
 
     # Récupérer les données envoyées par le client
     data = request.get_json()
     title_quest = data.get('Titre')
-    print(data)
-    #
+    state = data.get('state')
+    print("État reçu :", state)
+    print("Données reçues :", data)
 
+    # Requête pour trouver la question dans `Mes sondages`
+    find_my_question = mongo.db.users.find_one(
+        {
+            "_id": user_id,
+            "Mes sondages": {
+                "$elemMatch": {
+                    "title_question": title_quest
+                }
+            }
+        },
+        {
+            "Mes sondages.$": 1  # Récupérer uniquement l'objet correspondant
+        }
+    )
 
+    if find_my_question:
+        # Récupérer l'objet à partir de la réponse
+        my_question = find_my_question["Mes sondages"][0]
+
+        # Mettre à jour la clé `state` dans `Mes sondages`
+        update_my_question = mongo.db.users.update_one(
+            {
+                "_id": user_id,
+                "Mes sondages.title_question": title_quest
+            },
+            {
+                "$set": {"Mes sondages.$.state": state}
+            }
+        )
+
+        if update_my_question.modified_count > 0:
+            print(f"L'état du sondage '{title_quest}' a été mis à jour avec succès dans 'Mes sondages'.")
+
+            # Ajouter ou mettre à jour dans la collection `questions`
+            mongo.db.questions.find_one_and_update(
+                {"title_question": title_quest},
+                {
+                    "$set": {
+                        "title_question": my_question["title_question"],
+                        "choices": my_question["choices"],  # Ajouter les choix
+                        "expiration_date": my_question.get("expiration_date"),
+                        "state": state
+                    }
+                },
+                upsert=True  # Crée le document s'il n'existe pas
+            )
+            print(f"Le sondage '{title_quest}' a été transféré ou mis à jour dans la collection 'questions'.")
+            print(f"Le sondage '{title_quest}' a été supprimé de 'Mes sondages'.")
 
     return jsonify({
         "status": 200,
-        "message": f"L'état du sondage '{title_quest}' a été modifié avec succès."
+        "message": f"L'état du sondage '{title_quest}' a été modifié et transféré avec succès."
     }), 200
+

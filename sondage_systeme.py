@@ -16,7 +16,7 @@ def post_sondage():
     # je récupère les datas du formulaire
     title = request.form['quest_title']
     choices = request.form.getlist('questions[0][choices][]')
-    # on initalise la date d'expiration
+    # on initialise la date d'expiration
     expiration_date_str = request.form.get('expiration_date')
     if not expiration_date_str:
         return jsonify({"status": 400, "error": "La date d'expiration est obligatoire."}), 400
@@ -41,19 +41,13 @@ def post_sondage():
     print(f"Choix de réponses: {choices}")
     print(f"Date d'expiration: {expiration_date}")
 
-    #Une fois récupère, je crée un jeu de donnée pour préparer la requete sur la collection question global
-    sondage_data = {
-        "title_question": title,
-        "choices": choices,
-        "creator" : current_user.username,
-        "expiration_date": expiration_date,
-        "creation_date": datetime.now()
-    }
+
     #jeux de donnée pour la session de l'utilisateur
     my_sondage_data = {
         "title_question": title,
         "choices": choices,
-        "expiration_date": expiration_date
+        "expiration_date": expiration_date,
+        "state":"Privé"
     }
 
     #insertions du jeu de donnée dans la collection users
@@ -62,8 +56,6 @@ def post_sondage():
         {"$push": {"Mes sondages": my_sondage_data}}
     )
 
-    #On va créer une collection question pour l'ensemble des questions
-    result_in_question = mongo.db.questions.insert_one(sondage_data)
     return jsonify(
         {
             "status": "success",
