@@ -8,25 +8,24 @@
 <body>
     <div class="body-wrapper">
         <header>
-            <h2>{{ user }}</h2>
+            <form action="/profile">
+                <button class="usernameButton">{{ user }}</button>
+            </form>
             <div class="menu">
-                <form action="/profile">
-                    <button class="button">Profile</button>
+                <form action="/template_my_questions" method="get">
+                    <button class="button">My Question</button>
                 </form>
-                <form action="/modifie_profile">
-                    <button class="button">Modifier mon profil</button>
+                <form action="/get_all_questions" method="get">
+                    <button class="button"> All questions</button>
                 </form>
                 <form action="/result" method="GET">
                     <button type="submit" class="button">Résultat</button>
                 </form>
-                <form action="/template_my_questions" method="get">
-                    <button class="button">My Question</button>
-                </form>
-                <form action="/get_questions" method="get">
-                    <button class="button"> All questions</button>
-                </form>
-                <form action="/the_quest" method="get">
+                <!-- <form action="/get_last_questions" method="get">
                     <button class="button">The questions</button>
+                </form> -->
+                <form action="/modifie_profile">
+                    <button class="button">Modifier mon profil</button>
                 </form>
                 <form action="{{ url_for('logout') }}" method="POST">
                     <button type="submit" class="button deconnexion">Se déconnecter</button>
@@ -94,6 +93,5 @@
     </div>
 <!-- Ici, ça sera l'endroit d'import de mes différents scripts -->
 <script src="{{ url_for('static', filename='js/random_quest.js') }}"></script>
-<script src="{{ url_for('static', filename='js/quest.js') }}"></script>
 </body>
 </html>

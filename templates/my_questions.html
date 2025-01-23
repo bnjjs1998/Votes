@@ -3,22 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <title>Mes questions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
-<header>
-    <form action="/dashboard">
-        <button>back</button>
-    </form>
-</header>
+    <header>
+        <form action="/profile">
+            <button class="usernameButton">{{ user }}</button>
+        </form>
+        <div class="menu">
+            <form action="/template_my_questions" method="get">
+                <button class="button">My Questions</button>
+            </form>
+            <form action="/get_all_questions" method="get">
+                <button class="button"> All questions</button>
+            </form>
+            <form action="/result" method="GET">
+                <button type="submit" class="button">Résultat</button>
+            </form>
+            <!-- <form action="/get_all_questions" method="get">
+                <button class="button">The questions</button>
+            </form> -->
+            <form action="/modifie_profile">
+                <button class="button">Modifier mon profil</button>
+            </form>
+            <form action="{{ url_for('logout') }}" method="POST">
+                <button type="submit" class="button deconnexion">Se déconnecter</button>
+            </form>
+            
+        </div>
+    </header>
+    <main>
+        <form action="/dashboard">
+            <button class="button">back</button>
+        </form>
+        <section class="section-wide">
 
+            <h1>Mes sondages</h1>
+            <div id="my_questions">
+        </section>
+        
+        </div>
+    </main>
 
-<div id="my_quest">
-
-</div>
- <style>
+<style>
         /* Style pour la section contenant les sondages */
-        #my_quest {
+        #my_questions {
             padding: 20px;
             background-color: #f9f9f9;
             border-radius: 8px;
@@ -71,14 +101,13 @@
         }
 
         .btn_action button {
-            padding: 8px 15px;
             border: none;
-            border-radius: 4px;
+            border-radius: var(--border-radius-0);
             background-color: #007bff;
             color: #fff;
             cursor: pointer;
             font-size: 14px;
-            transition: background-color 0.3s;
+            transition: var(--transition-property);
         }
 
         .btn_action button:hover {
@@ -107,13 +136,14 @@
         }
 
         .btn_action button:nth-child(3) {
+            color: var(--silver-dark-2);
             background-color: #ffc107;
         }
 
         .btn_action button:nth-child(3):hover {
             background-color: #e0a800;
         }
-    </style>
+</style>
 
 <script src="{{ url_for('static', filename='js/myquest.js') }}"></script>
 </body>

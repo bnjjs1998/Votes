@@ -12,6 +12,7 @@
     --silver-dark-2: #6d5f5a;
     --alabaster: #F7F1E4;
     --alabaster-light: #FEFCF7;
+    --alabaster-light-2: #f9f9f9;
     --palatinate: #571F4E;
     --hookersgreen: #426A5A;
     --blue:#214e75;
@@ -63,12 +64,25 @@ section{
 main{
     padding: 0 2rem;
 }
+.section-wide{
+    height: auto;
+    align-items: center;
+    padding: var(--medium-gap) var(--mega-gap);
+}
+.all-questions{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: auto;
+    gap: var(--big-gap);
+    padding:var(--big-gap) 0;
+}
 .button {
     outline: none;
     padding: 10px 20px;
     border: var(--silver-dark-1) 2px solid;
     border-radius: var(--border-radius-0);
     background-color: var(--blue);
+    outline: 2px solid transparent;
     color: var(--white);
     font-weight: 600;
     cursor: pointer;
@@ -110,6 +124,28 @@ header{
     align-items: center;
     position: sticky;
     top: 0;
+    z-index: 2;
+}
+.usernameButton{
+    border: none;
+    background-color: transparent;
+    color: var(--white);
+    font-size: var(--secondary-font-size);
+    font-weight: 800;
+    cursor: pointer;
+    padding: var(--thin-gap) var(--light-gap);
+    transition: var(--transition-property);
+    outline: 2px solid transparent;
+}
+.usernameButton:hover{
+    color: var(--alabaster-light);
+    outline: 2px solid var(--blue);
+    /* transition: var(--transition-property); */
+    border-radius: var(--border-radius-0);
+}
+.usernameButton:active, .usernameButton:focus{
+    outline: 2px solid var(--blue);
+    border-radius: var(--border-radius-0);
 }
 .menu{
     display: flex;
@@ -216,7 +252,11 @@ input:focus{
     outline: 2px solid var(--blue);
     transition: var(--transition-property-fast);
 }
-
+.input_wide{
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
 .number_input{
     flex-direction: row;
     align-items: center;
@@ -258,6 +298,7 @@ main h1{
     font-size: var(--main-font-size);
     color: var(--black);
     margin-bottom: var(--thin-gap);
+    align-self: baseline;
 }
 .username{
     font-size: var(--main-font-size);
@@ -298,6 +339,11 @@ main h1{
 }
 
 .formVote{
+    max-width: 500px;
+    border: 2px solid var(--blue-light);
+    border-radius: var(--border-radius-1);
+    background: linear-gradient(var(--white), var(--alabaster-light));
+    padding: var(--padding);
     margin-bottom: var(--medium-gap);
 }
 

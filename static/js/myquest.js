@@ -11,7 +11,7 @@ fetch('/get_sondage_current_id', {
     .then(data => {
         console.log("Données reçues:", data);
 
-        const container = document.getElementById('my_quest');
+        const container = document.getElementById('my_questions');
         container.innerHTML = ""; // Nettoyage du conteneur avant ajout
 
         const sondages = data.Sondage;
@@ -24,25 +24,24 @@ fetch('/get_sondage_current_id', {
         sondages.forEach((question) => {
             const sondageDiv = document.createElement('div');
             sondageDiv.classList.add('sondage_item');
-            sondageDiv.style.marginBottom = '20px';
+            sondageDiv.classList.add('form_container');
             // Section titre
             const titleSection = document.createElement('div');
             titleSection.classList.add('title_quest');
-            titleSection.style.marginBottom = '15px';
+            titleSection.classList.add('input_container');
 
-            const titleHeading = document.createElement('h1');
+            const titleHeading = document.createElement('h3');
             titleHeading.textContent = question.title_question;
-            titleHeading.style.marginBottom = '10px';
 
             const titleInput = document.createElement('input');
             titleInput.type = 'text';
             titleInput.value = question.title_question;
-            titleInput.style.marginRight = '10px';
-            titleInput.style.width = '300px';
+//            titleInput.style.marginRight = '10px';
+//            titleInput.style.width = '300px';
 
             const updateTitleButton = document.createElement('button');
             updateTitleButton.textContent = 'Mettre à jour le titre';
-            updateTitleButton.style.marginLeft = '10px';
+            // updateTitleButton.style.marginLeft = '10px';
 
             updateTitleButton.addEventListener('click', () => {
                 const newTitle = titleInput.value.trim();
@@ -80,10 +79,7 @@ fetch('/get_sondage_current_id', {
                     .catch(error => {
                         console.error("Erreur :", error.message);
                     });
-
-
             });
-
 
             titleSection.appendChild(titleHeading);
             titleSection.appendChild(titleInput);
@@ -93,31 +89,39 @@ fetch('/get_sondage_current_id', {
             // Génération des choix
             const choicesContainer = document.createElement('div');
             choicesContainer.classList.add('choices_container');
-
-            const choiceInputs = []; // Stocker les champs de saisie des choix
+            const choicesInput = []; // Stocker les champs de saisie des choix
 
             if (question.choices && question.choices.length > 0) {
                 question.choices.forEach((choice, index) => {
                     const choiceContainer = document.createElement('div');
-                    choiceContainer.style.marginBottom = '15px';
+                    choiceContianer.classList.add('input_container');
+                    choiceContianer.classList.add('input_wide');
+//                    choiceContainer.style.marginBottom = '15px';
 
                     const choiceLabel = document.createElement('label');
                     choiceLabel.textContent = `Modifier le choix ${index + 1}:`;
-                    choiceLabel.style.display = 'block';
-                    choiceLabel.style.fontWeight = 'bold';
-                    choiceLabel.style.marginBottom = '5px';
+ //                   choiceLabel.style.display = 'block';
+ //                   choiceLabel.style.fontWeight = 'bold';
+//                    choiceLabel.style.marginBottom = '5px';
+
 
                     const choiceInput = document.createElement('input');
                     choiceInput.type = 'text';
                     choiceInput.value = choice;
-                    choiceInput.style.marginRight = '10px';
-                    choiceInput.style.width = '300px';
+//                    choiceInput.style.marginRight = '10px';
+//                    choiceInput.style.width = '300px';
 
-                    choiceInputs.push({ input: choiceInput, oldValue: choice });
+                    choicesInput.push({ input: choiceInput, oldValue: choice });
 
                     choiceContainer.appendChild(choiceLabel);
                     choiceContainer.appendChild(choiceInput);
                     choicesContainer.appendChild(choiceContainer);
+//        choiceWrapper.appendChild(label);
+//        choiceWrapper.appendChild(input);
+//        choiceWrapper.appendChild(document.createElement('br'))
+//        choiceSection.appendChild(choiceWrapper);
+
+
                 });
             } else {
                 const noChoicesMessage = document.createElement('div');
@@ -213,6 +217,7 @@ fetch('/get_sondage_current_id', {
                             alert("Une erreur s'est produite lors de la suppression de la question.");
                         });
             });
+
 
             sondageDiv.appendChild(deleteButton);
 
