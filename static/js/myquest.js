@@ -12,7 +12,7 @@ fetch('/get_sondage_current_id', {
     .then(data => {
         console.log("Données reçues:", data);
 
-        const container = document.getElementById('my_quest');
+        const container = document.getElementById('my_questions');
         container.innerHTML = ""; // Nettoyage du conteneur avant ajout
 
         if (data.status_code === 200 && Array.isArray(data.Sondage)) {
@@ -33,7 +33,7 @@ fetch('/get_sondage_current_id', {
     })
     .catch(error => {
         console.error("Erreur lors de la récupération des sondages:", error);
-        const container = document.getElementById('my_quest');
+        const container = document.getElementById('my_questions');
         container.innerHTML = `
             <div style="color: red; font-weight: bold;">
                 Une erreur s'est produite lors du chargement des sondages. Veuillez réessayer plus tard.
@@ -45,6 +45,7 @@ fetch('/get_sondage_current_id', {
 function createSondageDiv(question) {
     const sondageDiv = document.createElement('div');
     sondageDiv.classList.add('sondage_item');
+    sondageDiv.classList.add('form_container');
 
     const titleSection = createTitleSection(question);
     const choiceSection = createChoiceSection(question);
@@ -61,22 +62,22 @@ function createSondageDiv(question) {
 function createTitleSection(question) {
     const titleSection = document.createElement('div');
     titleSection.classList.add('title_quest');
+    titleSection.classList.add('input_container');
 
-    const titleParagraph = document.createElement('p');
-    titleParagraph.textContent = `Titre : ${question.title_question}`;
-    titleParagraph.style.fontWeight = 'bold';
+    const headingTitle = document.createElement('h3');
+    headingTitle.textContent = `Titre : ${question.title_question}`;
+    // headingTitle.style.fontWeight = 'bold';
 
     const titleInput = document.createElement('input');
     titleInput.setAttribute('type', 'text');
     titleInput.value = question.title_question;
     titleInput.placeholder = 'Modifier le titre';
-    titleInput.style.marginLeft = '10px';
 
     titleInput.addEventListener('input', () => {
         question.title_question = titleInput.value; // Met à jour le titre en temps réel
     });
 
-    const changeTitleButton = createButton('Changer le titre', '10px', () => {
+    const changeTitleButton = createButton('Changer le titre', () => {
         fetch('/update_title', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -87,16 +88,16 @@ function createTitleSection(question) {
         })
             .then(response => response.json())
             .then(data => {
-                console.log("Le titre a été mis à jour avec succès.");
+                alert("Le titre a été mis à jour avec succès.");
             })
             .catch(error => {
-                console.error("Erreur lors de la mise à jour du titre:", error);
+                alert("Erreur lors de la mise à jour du titre:", error);
             });
     });
+    changeTitleButton.classList.add('button')
 
-    titleSection.appendChild(titleParagraph);
+    titleSection.appendChild(headingTitle);
     titleSection.appendChild(titleInput);
-    titleSection.appendChild(document.createElement('br'));
     titleSection.appendChild(changeTitleButton);
 
     return titleSection;
@@ -108,6 +109,9 @@ function createChoiceSection(question) {
     choiceSection.classList.add('choice_quest');
 
     question.choices.forEach((choice, index) => {
+        const choiceWrapper = document.createElement('div')
+        choiceWrapper.classList.add('input_container');
+        choiceWrapper.classList.add('input_wide');
         const label = document.createElement('label');
         label.textContent = `Option ${index + 1}:`;
 
@@ -121,9 +125,10 @@ function createChoiceSection(question) {
             question.choices[index] = input.value; // Mise à jour en temps réel
         });
 
-        choiceSection.appendChild(label);
-        choiceSection.appendChild(input);
-        choiceSection.appendChild(document.createElement('br'));
+        choiceWrapper.appendChild(label);
+        choiceWrapper.appendChild(input);
+        choiceWrapper.appendChild(document.createElement('br'))
+        choiceSection.appendChild(choiceWrapper);
     });
 
     return choiceSection;
@@ -137,7 +142,6 @@ function createButtonSection(question) {
     // Bouton pour changer l'état de confidentialité
     const togglePrivacyButton = createButton(
         question.privacy === 'public' ? 'Passer en privé' : 'Passer en public',
-        '10px',
         () => {
             const newPrivacy = question.privacy === 'public' ? 'private' : 'public';
             question.privacy = newPrivacy;
@@ -245,6 +249,7 @@ function createButtonSection(question) {
 // Fonction générique pour créer un bouton
 function createButton(text, marginTop, onClick) {
     const button = document.createElement('button');
+    button.classList.add('button');
     button.textContent = text;
     button.style.marginTop = marginTop;
     button.setAttribute('type', 'button');
