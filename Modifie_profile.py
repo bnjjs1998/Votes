@@ -4,9 +4,6 @@ from app import *
 from app import app
 from app import mongo
 
-
-
-
 #je crée la route qui va permettre de modifier le profile
 @app.route('/modifie_profile')
 @login_required
@@ -34,7 +31,7 @@ def modify_profile():
 
         if not new_email:
             return jsonify({"error": "Email is required"}), 400
-
+        #test
         user_id = current_user.id
         result = mongo.db.users.update_one(
             {"_id": user_id},

@@ -6,152 +6,234 @@ from app import *
 from app import app
 from app import mongo
 from request_friend import collections_user
-@app.route('/update_choices', methods=['POST'])
-@login_required
-def update_choices():
-    try:
-        # Récupération des données envoyées par le frontend
-        data = request.get_json()
-
-
-
-
-    except Exception as e:
-        print(f"Erreur lors de la mise à jour des choix : {e}")
-        return jsonify({
-            "success": False,
-            "message": "Une erreur interne est survenue."
-        }), 500
-
-
-
-
+#
 @app.route('/update_title', methods=['POST'])
 @login_required
 def update_title():
-    try:
-        # Récupération des données envoyées par le frontend
-        data = request.get_json()
-        old_title = data.get('old_title')  # Titre existant
-        new_title = data.get('new_title')  # Nouveau titre
+    data = request.get_json()
+    old_title = data.get('old_Titre')
+    new_title = data.get('new_Titre')
+    user_id = current_user.id  # Récupération de l'ID utilisateur connecté
 
-        if not old_title or not new_title:
-            return jsonify({
-                "success": False,
-                "message": "Les deux titres (ancien et nouveau) sont requis."
-            }), 400
+    # Validation des entrées
+    if not user_id:
+        return jsonify({
+            "error": "Vous devez être connecté pour mettre à jour un titre."
+        }), 401
 
-        # Mise à jour dans la collection MongoDB
-        result = mongo.db.users.update_one(
-            {"_id": current_user.id, "Mes sondages.title_question": old_title},
-            {"$set": {"Mes sondages.$.title_question": new_title}}
-        )
-
-        if result.modified_count > 0:
-            return jsonify({
-                "success": True,
-                "message": "Le titre a été mis à jour avec succès.",
-                "old_title": old_title,
-                "new_title": new_title
-            }), 200
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Aucun titre correspondant trouvé ou mise à jour non effectuée."
-            }), 404
-
-    except Exception as e:
-        print(f"Erreur lors de la mise à jour du titre : {e}")
+    if not old_title or not new_title:
         return jsonify({
             "success": False,
-            "message": "Une erreur interne est survenue."
-        }), 500
+            "error": "Les titres (ancien et nouveau) sont requis."
+        }), 400
 
+    # Vérification si l'ancien titre existe et n'est pas public
+    public_question = mongo.db.questions.find_one({'title': old_title})
+    if public_question:
+        return jsonify({
+            "success": False,
+            "error": "La question est en public, elle ne peut pas être modifiée."
+        }), 410
 
-@app.route('/Delete_btn', methods=['POST'])
-@login_required
-def delete_btn():
-    data = request.get_json()
-    # Afficher les données reçues pour déboguer
-    print(f"Data received for delete: {data}")
-    # Validation des données
-    title = data.get('question_title')
-    print(title)
+    # Mise à jour dans la collection `users`
+    result = mongo.db.users.update_one(
+        {
+            '_id': user_id,
+            'Mes sondages.title_question': old_title     # Filtre par titre dans `Mes sondages`
+        },
+        {
+            '$set': {'Mes sondages.$.title_question': new_title}  # Mettre à jour le titre spécifique
+        }
+    )
 
-
+    # Vérification si la mise à jour a eu lieu
+    if result.matched_count == 0:
+        return jsonify({
+            "success": False,
+            "error": "Le titre à mettre à jour n'a pas été trouvé."
+        }), 404
 
     return jsonify({
-        "success": True
-    })
+        "success": True,
+        "message": f"Le titre '{old_title}' a été mis à jour avec succès.",
+        "old_title": old_title,
+        "new_title": new_title
+    }), 200
 
 
+@app.route('/update_choices', methods=['POST'])
+@login_required
+def update_choice():
+    try:
+        # Récupérer les données JSON
+        data = request.get_json()
+        print("Données reçues :", data)
+
+        data_title = data.get('Titre')
+        choices = data.get('choices', [])
+        user_id = current_user.id  # UUID, pas ObjectId
+
+        if not user_id:
+            return jsonify({"success": False, "error": "L'utilisateur n'est pas connecté."}), 401
+
+        if not data_title:
+            return jsonify({"success": False, "error": "Le titre est requis."}), 400
+
+        if not choices:
+            return jsonify({"success": False, "error": "Les choix sont requis."}), 400
+
+        # Extraire les nouveaux choix
+        new_values = [choice['newValue'] for choice in choices if 'newValue' in choice]
+        print("Nouveaux choix extraits :", new_values)
+
+        if not new_values:
+            return jsonify({
+                "success": False,
+                "error": "Aucun choix valide trouvé."
+            }), 400
+
+        # Mise à jour MongoDB
+        result = mongo.db.users.update_one(
+            {
+                '_id': user_id,  # Utiliser directement l'UUID
+                'Mes sondages.title_question': data_title
+            },
+            {
+                '$set': {'Mes sondages.$.choices': new_values}
+            }
+        )
+
+        if result.matched_count == 0:
+            return jsonify({
+                "success": False,
+                "error": "Sondage introuvable pour cet utilisateur."
+            }), 404
+
+        return jsonify({
+            "success": True,
+            "message": f"Les choix pour le sondage '{data_title}' ont été mis à jour avec succès.",
+            "new_values": new_values
+        }), 200
+
+    except Exception as e:
+        print("Erreur inattendue :", str(e))
+        return jsonify({"success": False, "error": "Une erreur interne s'est produite."}), 500
+
+from flask import jsonify, request
+from flask_login import login_required, current_user
+from bson import ObjectId
+
+@app.route('/delete', methods=['POST'])
+@login_required
+def delete():
+    try:
+        # Récupérer les données de la requête
+        data = request.get_json()
+        data_title = data.get("Titre")
+        user_id = current_user.id
+
+        if not data_title:
+            return jsonify({"success": False, "error": "Titre requis."}), 400
+
+        # Suppression d'un sondage dans `Mes sondages`
+        result = mongo.db.users.find_one_and_update(
+            {
+                "_id": user_id  # Rechercher l'utilisateur par ID
+            },
+            {
+                "$pull": {
+                    "Mes sondages": {"title_question": data_title}  # Supprimer le sondage par titre
+                }
+            },
+            return_document=True  # Retourner le document après mise à jour
+        )
+
+        if not result:
+            return jsonify({
+                "success": False,
+                "error": "Utilisateur ou sondage introuvable."
+            }), 404
 
 
+        # Maintenant, on va vérifier que la question ne se trouve pas non plus dans la question4
+
+        result_in_question = mongo.db.users.find_one_and_update(
+
+        )
+
+        return jsonify({
+            "success": True,
+            "message": f"Le sondage '{data_title}' a été supprimé avec succès.",
+            "updated_user": result
+        }), 200
+
+    except Exception as e:
+        print("Erreur inattendue :", str(e))
+        return jsonify({"success": False, "error": "Une erreur interne s'est produite."}), 500
 
 @app.route('/Change_state_btn', methods=['POST'])
+@login_required
 def change_state_btn():
+    user_id = current_user.id
 
     # Récupérer les données envoyées par le client
     data = request.get_json()
-    title_quest = data.get('question_title')
-    state = data.get('privacy')
+    title_quest = data.get('Titre')
+    state = data.get('state')
+    print("État reçu :", state)
+    print("Données reçues :", data)
 
+    # Requête pour trouver la question dans `Mes sondages`
+    find_my_question = mongo.db.users.find_one(
+        {
+            "_id": user_id,
+            "Mes sondages": {
+                "$elemMatch": {
+                    "title_question": title_quest
+                }
+            }
+        },
+        {
+            "Mes sondages.$": 1  # Récupérer uniquement l'objet correspondant
+        }
+    )
 
-    # je vérifie la table archive si c'est le cas erreur
-    document_block = mongo.db.scrutin_archive.find_one({'title_question': title_quest})
-    if document_block:
-        return jsonify({
-            "error": "la question est deja dans les archive"
-        })
+    if find_my_question:
+        # Récupérer l'objet à partir de la réponse
+        my_question = find_my_question["Mes sondages"][0]
 
-    print(f"Données reçues : {data}")
-    print(f"État demandé : {state}")
+        # Mettre à jour la clé `state` dans `Mes sondages`
+        update_my_question = mongo.db.users.update_one(
+            {
+                "_id": user_id,
+                "Mes sondages.title_question": title_quest
+            },
+            {
+                "$set": {"Mes sondages.$.state": state}
+            }
+        )
 
-    # Vérifier que le champ 'title_question' est présent
-    if not title_quest:
-        return jsonify({
-            "status": 400,
-            "message": "Le champ 'question_title' est requis."
-        }), 400
+        if update_my_question.modified_count > 0:
+            print(f"L'état du sondage '{title_quest}' a été mis à jour avec succès dans 'Mes sondages'.")
 
-    # Gestion des états 'private' et 'public'
-    if state == "private":
-        print(f"Le sondage '{title_quest}' est passé en privé.")
-        # Supprimer le document correspondant
-        delete_result = mongo.db.questions.delete_one({"title_question": title_quest})
-
-        if delete_result.deleted_count > 0:
-            print(f"Le sondage '{title_quest}' a été supprimé avec succès.")
-        else:
-            print(f"Aucun sondage trouvé avec le titre '{title_quest}'. Rien à supprimer.")
-
-    elif state == "public":
-        print(f"Le sondage '{title_quest}' est passé en public.")
-        # Vérifier si le document existe déjà
-        existing_question = mongo.db.questions.find_one({"title_question": title_quest})
-
-        if existing_question:
-            print(f"Le sondage '{title_quest}' existe déjà. Mise à jour de l'état.")
-            mongo.db.questions.update_one(
+            # Ajouter ou mettre à jour dans la collection `questions`
+            mongo.db.questions.find_one_and_update(
                 {"title_question": title_quest},
-                {"$set": {"privacy": "public"}}
+                {
+                    "$set": {
+                        "title_question": my_question["title_question"],
+                        "choices": my_question["choices"],  # Ajouter les choix
+                        "expiration_date": my_question.get("expiration_date"),
+                        "state": state
+                    }
+                },
+                upsert=True  # Crée le document s'il n'existe pas
             )
-        else:
-            print(f"Le sondage '{title_quest}' n'existe pas. Création du document.")
-            mongo.db.questions.insert_one({
-                "title_question": title_quest,
-                "choices_label": data.get("choices", []),
-                "privacy": "public"
-            })
-
-    else:
-        print("État inconnu. Aucune action effectuée.")
-        return jsonify({
-            "status": 400,
-            "message": "L'état spécifié est inconnu."
-        }), 400
+            print(f"Le sondage '{title_quest}' a été transféré ou mis à jour dans la collection 'questions'.")
+            print(f"Le sondage '{title_quest}' a été supprimé de 'Mes sondages'.")
 
     return jsonify({
         "status": 200,
-        "message": f"L'état du sondage '{title_quest}' a été modifié avec succès."
+        "message": f"L'état du sondage '{title_quest}' a été modifié et transféré avec succès."
     }), 200
+
