@@ -44,7 +44,23 @@ def modify_profile():
         return jsonify({"message": "success"})
 
 
-@app.route('/dy', methods=['POST', 'GET'])
+@app.route('/remove_profile', methods=['POST', 'GET'])
 @login_required
 def delete_profile():
-    print('hello')
+    data = 'hello'
+    print(data)
+    user_id = current_user.id
+    # convertir l'user_id en format utilisable
+    user_id_str = str(user_id)
+    #Faire la requete pour find le document dans user
+    session =mongo.db.users.find_one({"_id": user_id_str})
+    if not session:
+        return jsonify({"error": "User not found"}), 404
+    else:
+        print("la sessions à été trouvé")
+
+
+
+    return jsonify({
+        "message": "success",
+    })
