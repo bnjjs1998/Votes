@@ -48,6 +48,14 @@ def register():
         if mongo.db.users.find_one({"email": email}):
             return jsonify({"message": "User already exists"}), 400
 
+        if mongo.db.users.find_one({"username": username}):
+            return jsonify({"message": "User already exists"}), 400
+
+        if mongo.db.Profil_close.find_one({"username": username}):
+            return jsonify({"message": "User already exists"}), 400
+
+
+
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
         user_id = str(uuid.uuid4())
         mongo.db.users.insert_one({
