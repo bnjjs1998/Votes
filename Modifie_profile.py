@@ -43,24 +43,38 @@ def modify_profile():
 
         return jsonify({"message": "success"})
 
-
 @app.route('/remove_profile', methods=['POST', 'GET'])
 @login_required
 def delete_profile():
-    data = 'hello'
-    print(data)
-    user_id = current_user.id
-    # convertir l'user_id en format utilisable
-    user_id_str = str(user_id)
-    #Faire la requete pour find le document dans user
-    session =mongo.db.users.find_one({"_id": user_id_str})
-    if not session:
-        return jsonify({"error": "User not found"}), 404
-    else:
-        print("la sessions à été trouvé")
+    try:
+        # Debug info
+        print("Début de la suppression du profil.")
 
+        # Récupérer l'ID de l'utilisateur (au format string UUID)
+        user_id = str(current_user.id)  # Pas de conversion en ObjectId ici
 
+        # Trouver le document correspondant dans la collection `users`
+        session = mongo.db.users.find_one({"_id": user_id})
+        if not session:
+            return jsonify({"error": "User not found"}), 404
+        else:
+            print("La session a été trouvée pour l'utilisateur.")
 
-    return jsonify({
-        "message": "success",
-    })
+            # Clés à conserver
+            keys_to_keep = {"_id", "username", "mes_sondages"}
+
+            # Identifier les clés à supprimer dynamiquement
+            keys_to_unset = {key: "" for key in session.keys() if key not in keys_to_keep}
+
+            # Supprimer les clés non désirées
+            mongo.db.users.update_one(
+                {"_id": user_id},  # Filtrer par l'utilisateur
+                {"$unset": keys_to_unset}  # Supprimer les clés non désirées
+            )
+
+        return jsonify({"message": "Profile successfully cleaned and updated"}), 200
+
+    except Exception as e:
+        print(f"Erreur pendant la suppression : {e}")
+        return jsonify({"error": "An error occurred"}), 500
+
