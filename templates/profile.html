@@ -10,8 +10,13 @@
     <div id="profile-info">
         <p>Nom d'utilisateur: <span id="username">{{ user['username'] }}</span></p>
         <p>Email: <span id="email">{{ user['email'] }}</span></p> <!-- Remplacez `email` par les champs réels dans votre base -->
-        <p>Créé le: <span id="created_at">{{ user['created_at'] }}</span></p> <!-- Exemple de champ -->
+        <p>Crée le: <span id="created_at">{{ user['created_at'] }}</span></p> <!-- Exemple de champ -->
     </div>
+
+    <form method="POST" action="/dy">
+        <h1> test suppression</h1>
+        <button>Supprimer</button>
+    </form>
 
 
 </body>

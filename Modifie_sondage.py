@@ -155,11 +155,8 @@ def delete():
             }), 404
 
 
-        # Maintenant, on va vérifier que la question ne se trouve pas non plus dans la question4
 
-        result_in_question = mongo.db.users.find_one_and_update(
 
-        )
 
         return jsonify({
             "success": True,
@@ -230,10 +227,9 @@ def change_state_btn():
                 upsert=True  # Crée le document s'il n'existe pas
             )
             print(f"Le sondage '{title_quest}' a été transféré ou mis à jour dans la collection 'questions'.")
-            print(f"Le sondage '{title_quest}' a été supprimé de 'Mes sondages'.")
 
+    # Ne pas supprimer de `Mes sondages`, garder l'objet en place
     return jsonify({
         "status": 200,
         "message": f"L'état du sondage '{title_quest}' a été modifié et transféré avec succès."
     }), 200
-

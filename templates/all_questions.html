@@ -44,7 +44,7 @@
             <div id="questions-container" class="all-questions">
                 {% if questions %}
                     {% for question in questions %}
-                        <form method="POST" action="/Post_vote" class="formVote">
+                        <form method="POST" action="/Vote" class="formVote">
                             <h3>{{question.title_question}}</h3>
                             {% for choice in question.choices %}
                             <div class="input_container number_input">
@@ -64,8 +64,6 @@
             </div>
         </section>
     </main>
-
-
-<script src="{{ url_for('static', filename='js/quest.js') }}"></script>
+<script src="{{ url_for('static', filename='js/random_quest.js') }}"></script>
 </body>
 </html>

@@ -42,3 +42,9 @@ def modify_profile():
             return jsonify({"error": "User not found"}), 404
 
         return jsonify({"message": "success"})
+
+
+@app.route('/dy', methods=['POST', 'GET'])
+@login_required
+def delete_profile():
+    print('hello')

@@ -94,8 +94,8 @@ fetch('/get_sondage_current_id', {
             if (question.choices && question.choices.length > 0) {
                 question.choices.forEach((choice, index) => {
                     const choiceContainer = document.createElement('div');
-                    choiceContianer.classList.add('input_container');
-                    choiceContianer.classList.add('input_wide');
+                    choiceContainer.classList.add('input_container');
+                    choiceContainer.classList.add('input_wide');
 //                    choiceContainer.style.marginBottom = '15px';
 
                     const choiceLabel = document.createElement('label');
