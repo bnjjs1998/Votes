@@ -39,7 +39,7 @@
             <button class="button">Back</button>
         </form>
         <section class="section-wide">
-            <h1>Tous les sondages disponible</h1>
+            <h1>Tous les sondages disponibles</h1>
             
             <div id="questions-container" class="all-questions">
                 {% if questions %}
@@ -52,16 +52,14 @@
                                 <input id="choice{{question._id}}_{{index}}" type="number" name="choice{{question._id}}" placeholder="Classer votre préférence" min="1" max="3">
                             </div>
                             {% endfor %}
-                            <p>Date et heure d'expiration du sondage:
-                                {{ question.expiration_date.strftime('%d/%m/%Y %H:%M') }}</p>
                             <button type="submit" class="button">Vote</button>
                         </form>
                     {% endfor %}
                 {% else %}
                     <p>Aucun sondage trouvé.</p>
                 {% endif %}
-
             </div>
+
         </section>
     </main>
 <script src="{{ url_for('static', filename='js/random_quest.js') }}"></script>
