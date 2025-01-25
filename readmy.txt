@@ -1,0 +1,7 @@
+Comment initialiser le projet
+
+Dans un premier temps, il faut créer impérativement un compte avec le pseudo "admin",
+le mot de passe, c'est vous qui le choisissez.
+
+Si le pseudo est différent "admin", vous aurez le rôle "utilisateur".
+
