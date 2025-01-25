@@ -18,6 +18,8 @@ def post_sondage():
     choices = request.form.getlist('questions[0][choices][]')
     # on initialise la date d'expiration
     expiration_date_str = request.form.get('expiration_date')
+
+
     if not expiration_date_str:
         return jsonify({"status": 400, "error": "La date d'expiration est obligatoire."}), 400
     def parse_date(date_str):
@@ -73,37 +75,34 @@ def vote():
         data = request.get_json()
         print("Données reçues :", data)
 
-        # Vérifications avec logs
+        # Vérifications initiales
         if not data:
-            print("Erreur : aucune donnée reçue")
             return jsonify({"status": 400, "message": "Aucune donnée reçue"}), 400
+        if "title_question" not in data or "choices" not in data:
+            return jsonify({"status": 400, "message": "Données incomplètes : 'title_question' ou 'choices' manquant"}), 400
 
-        if "title_question" not in data:
-            print("Erreur : 'title_question' manquant")
-            return jsonify({"status": 400, "message": "'title_question' manquant"}), 400
-
-        if "choices" not in data:
-            print("Erreur : 'choices' manquant")
-            return jsonify({"status": 400, "message": "'choices' manquant"}), 400
-
-        if not isinstance(data["choices"], dict):
-            print("Erreur : 'choices' n'est pas un dictionnaire")
-            return jsonify({"status": 400, "message": "'choices' doit être un dictionnaire"}), 400
-
-        # Traitement principal
+        # Récupération de la question dans la base
         question_title = data["title_question"]
-        choices = data["choices"]
-
-        # Vérifiez l'utilisateur
-        user_id = current_user.id
-        user = mongo.db.users.find_one({"_id": user_id})
-
-        # Vérifiez la question
         question = mongo.db.questions.find_one({"title_question": question_title})
+        if not question:
+            return jsonify({"status": 404, "message": "Question introuvable"}), 404
 
-        question_id = question["_id"]
-        #i
+        # Vérifier la date d'expiration
+        expiration_date = question.get("expiration_date")
+        if expiration_date:
+            # Si expiration_date est déjà un objet datetime, l'utiliser directement
+            if isinstance(expiration_date, datetime):
+                expiration_date_obj = expiration_date
+            else:
+                # Sinon, convertir en datetime
+                expiration_date_obj = datetime.strptime(expiration_date, '%Y-%m-%dT%H:%M:%S.%f+00:00')
+
+            # Vérifier si la date d'expiration est dépassée
+            if datetime.now() > expiration_date_obj:
+                return jsonify({"status": 400, "message": "La période de vote est expirée"}), 410
+
         # Logique Condorcet (inchangée)
+        choices = data["choices"]
         pairwise_results = {
             option: {opponent: 0 for opponent in choices if opponent != option}
             for option in choices
@@ -122,14 +121,10 @@ def vote():
                 if score > pairwise_results[opponent][option]:
                     final_scores[option] += 1
 
-        # Mise à jour de la base de données
+        # Mise à jour des scores Condorcet dans la base
         mongo.db.questions.update_one(
-            {"_id": question_id},
-            {
-                "$set": {
-                    "Condorcet_Scores": final_scores
-                }
-            }
+            {"_id": question["_id"]},
+            {"$set": {"Condorcet_Scores": final_scores}}
         )
 
         return jsonify({
@@ -140,8 +135,4 @@ def vote():
 
     except Exception as e:
         print(f"Erreur lors du traitement : {e}")
-        return jsonify({
-            "status": 500,
-            "message": "Erreur interne",
-            "details": str(e)
-        }), 500
+        return jsonify({"status": 500, "message": "Erreur interne", "details": str(e)}), 500

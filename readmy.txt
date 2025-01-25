@@ -5,3 +5,5 @@ le mot de passe, c'est vous qui le choisissez.
 
 Si le pseudo est différent "admin", vous aurez le rôle "utilisateur".
 
+
+
