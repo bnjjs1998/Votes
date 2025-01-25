@@ -54,7 +54,8 @@ def register():
         if mongo.db.Profil_close.find_one({"username": username}):
             return jsonify({"message": "User already exists"}), 400
 
-
+            # Déterminer le rôle
+        role = "admin" if username.lower() == "admin" else "utilisateur"
 
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
         user_id = str(uuid.uuid4())
@@ -62,7 +63,8 @@ def register():
             "_id": user_id,
             "username": username,
             "email": email,
-            "password": hashed_password
+            "password": hashed_password,
+            "role": role
         })
         return jsonify({"message": "User registered successfully"}), 201
 
