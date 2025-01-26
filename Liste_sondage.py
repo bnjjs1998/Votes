@@ -5,7 +5,6 @@ from app import *
 from app import app
 from app import mongo
 
-#retourner un élément aléatoire
 
 
 @app.route('/get_all_questions', methods=['GET'])
