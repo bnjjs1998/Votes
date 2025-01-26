@@ -16,7 +16,7 @@ fetch('/get_last_questions', {
             const questionForm = document.createElement('form');
             questionForm.setAttribute('method', 'POST');
             questionForm.setAttribute('action', '/Post_vote');
-            questionForm.classList.add('formVote');
+            questionForm.classList.add('formVote', 'tooltip');
 
             // Titre de la question
             const title = document.createElement('h3');
@@ -70,9 +70,14 @@ fetch('/get_last_questions', {
 
             const buttonPostVote = document.createElement('button');
             buttonPostVote.textContent = 'Vote';
+            buttonPostVote.setAttribute('id', 'submit_button');
             buttonPostVote.setAttribute('type', 'submit');
             buttonPostVote.classList.add('button');
+            const tooltip = document.createElement('span');
+            tooltip.classList.add('tooltiptext');
+            tooltip.textContent = 'Classez vos choix de 1 à 3, par ordre de préférence.';
             questionForm.appendChild(buttonPostVote);
+            questionForm.appendChild(tooltip);
 
             questionsContainer.appendChild(questionForm);
 
@@ -102,32 +107,32 @@ fetch('/get_last_questions', {
         console.error('Erreur de récupération des questions:', error);
     });
 
-document.getElementById("submit_button").addEventListener("click", async function (event) {
-    event.preventDefault();
-    const formData = new FormData(document.getElementById("newFormVote"));
-    try {
-        const response = await fetch("/Post_sondage", {
-            method: "POST",
-            body: formData,
-        });
-        const result = await response.json();
-        if (response.ok) {
-            alert(result.message); // Affiche l'alerte Windows avec le message du serveur
-            location.reload();
-        } else {
-            alert(`Erreur : ${result.error}`);
-        }
-    } catch (error) {
-        alert("Une erreur est survenue. Veuillez réessayer.");
-    }
-});
+// document.getElementById("submit_button").addEventListener("click", async function (event) {
+//     event.preventDefault();
+//     const formData = new FormData(document.getElementById("newFormVote"));
+//     try {
+//         const response = await fetch("/Post_sondage", {
+//             method: "POST",
+//             body: formData,
+//         });
+//         const result = await response.json();
+//         if (response.ok) {
+//             alert(result.message); // Affiche l'alerte Windows avec le message du serveur
+//             location.reload();
+//         } else {
+//             alert(`Erreur : ${result.error}`);
+//         }
+//     } catch (error) {
+//         alert("Une erreur est survenue. Veuillez réessayer.");
+//     }
+// });
 
-function refreshQuestionsContainer() {
-    fetch("/get_last_questions") // Mettez l'URL pour récupérer les questions à jour
-        .then(response => response.text())
-        .then(html => {
-            console.log("Nouveau contenu des questions :", html);
-            document.getElementById("questions-container").innerHTML = html;
-        })
-        .catch(error => console.error("Erreur lors de la mise à jour :", error));
-}
+// function refreshQuestionsContainer() {
+//     fetch("/get_last_questions") // Mettez l'URL pour récupérer les questions à jour
+//         .then(response => response.text())
+//         .then(html => {
+//             console.log("Nouveau contenu des questions :", html);
+//             document.getElementById("questions-container").innerHTML = html;
+//         })
+//         .catch(error => console.error("Erreur lors de la mise à jour :", error));
+// }

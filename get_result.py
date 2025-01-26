@@ -20,5 +20,6 @@ def get_result():
     print(archive_list)
     return jsonify(
         {"data": archive_list},
-        {'success': 'ejejejej'}
+        {'success': 'true'},
+        {'username': current_user.username}
     )

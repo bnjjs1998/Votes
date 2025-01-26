@@ -4,6 +4,7 @@ fetch('/get_sondage_current_id', {
 })
     .then(response => {
         if (!response.ok) {
+            console.log("Erreur lors de la récupération de l'ID du sondage actuel !");
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         return response.json();
@@ -19,7 +20,7 @@ fetch('/get_sondage_current_id', {
         const sondages = data.Sondage;
 
         if (sondages.length === 0) {
-            container.textContent = "Aucun sondage disponible pour l'instant.";
+            container.textContent = "Aucun sondage disponible. Ajoutez-en un depuis votre dashboard !";
             return;
         }
         sondages.forEach((question, index) => {
@@ -162,6 +163,7 @@ fetch('/get_sondage_current_id', {
     
             case 'toggleVisibility':
                 btn.addEventListener('click', () => {
+                    console.log("Privacy state before:", question.is_public);
                     question.is_public = !question.is_public;
                     btn.textContent = question.is_public ? 'Rendre Privé' : 'Rendre Public';
     

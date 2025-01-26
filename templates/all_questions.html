@@ -15,7 +15,7 @@
             <form action="/dashboard" method="get">
                 <button class="button">Dashboard</button>
             </form>
-            <form action="/template_my_questions" method="get">
+            <form action="/get_my_questions" method="get">
                 <button class="button">My Questions</button>
             </form>
             <!-- <form action="/get_all_questions" method="get">
@@ -60,7 +60,17 @@
                     <p>Aucun sondage trouvé.</p>
                 {% endif %}
             </div>
-
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="notifications">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
         </section>
     </main>
 <script src="{{ url_for('static', filename='js/random_quest.js') }}"></script>
