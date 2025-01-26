@@ -163,14 +163,14 @@ fetch('/get_sondage_current_id', {
             case 'toggleVisibility':
                 btn.addEventListener('click', () => {
                     question.is_public = !question.is_public;
-                    btn.textContent = 'Rendre Public';
+                    btn.textContent = question.is_public ? 'Rendre Privé' : 'Rendre Public';
     
                     fetch('/Change_state_btn', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             Titre: question.title_question,
-                            state: 'Public'
+                            state: question.is_public ? 'Public' : 'Privé'
                         })
                     })
                         .then(response => response.json())
