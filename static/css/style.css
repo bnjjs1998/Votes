@@ -36,7 +36,7 @@
     --thin-gap: .2rem;
     --light-gap: .6rem;
     --medium-gap: 1rem;
-    --big-gap: 2rem;
+    --big-gap: 1rem;
     --mega-gap: 4rem;
     --padding: 1rem 2rem;
     --padding-light: .6rem .2rem;
@@ -206,12 +206,6 @@ footer {
     margin-bottom: 1rem;
     padding: 0 1rem;
 }
-.formVote p {
-        margin-top: 10px;
-        margin-bottom: 10px;
-        font-style: italic; /* Optionnel : pour ajouter un style */
-    }
-
 
 .form_wrapper{
     width: 65%;
@@ -435,7 +429,6 @@ aside p{
     font-weight: 400;
     color: var(--black);
 }
-
 .choices_container {
     padding: var(--padding-light);
 }

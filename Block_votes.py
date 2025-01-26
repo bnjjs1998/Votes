@@ -7,15 +7,13 @@ from app import mongo
 from request_friend import collections_user
 
 
-
-
 @app.route('/B_btn', methods=['POST'])
 @login_required
 def block_btn():
     try:
         # Récupérer les données envoyées par le frontend
         data = request.get_json()
-        title = data.get('Titre')  # Correspond à 'question.title_question' envoyé
+        title = data.get('Titre')
         if not title:
             return jsonify({
                 "success": False,
@@ -91,11 +89,3 @@ def block_btn():
 
 
 
-@app.route('/block', methods=['POST'])
-@login_required
-def block():
-    data = request.get_json()
-    print(f"Data received for Block result: {data}")
-    return jsonify({
-
-    })
