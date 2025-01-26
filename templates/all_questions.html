@@ -12,18 +12,18 @@
             <button class="usernameButton">{{ user }}</button>
         </form>
         <div class="menu">
+            <form action="/dashboard" method="get">
+                <button class="button">Dashboard</button>
+            </form>
             <form action="/template_my_questions" method="get">
                 <button class="button">My Questions</button>
             </form>
-            <form action="/get_all_questions" method="get">
+            <!-- <form action="/get_all_questions" method="get">
                 <button class="button"> All questions</button>
-            </form>
+            </form> -->
             <form action="/result" method="GET">
                 <button type="submit" class="button">Résultat</button>
             </form>
-            <!-- <form action="/get_all_questions" method="get">
-                <button class="button">The questions</button>
-            </form> -->
             <form action="/modifie_profile">
                 <button class="button">Modifier mon profil</button>
             </form>
@@ -44,17 +44,18 @@
             <div id="questions-container" class="all-questions">
                 {% if questions %}
                     {% for question in questions %}
-                        <form method="POST" action="/Post_vote" class="formVote">
+                        <form method="POST" action="/Post_vote" class="formVote tooltip">
                             <h3>{{question.title_question}}</h3>
                             {% for choice in question.choices %}
                             <div class="input_container number_input">
                                 <label for="choice{{question._id}}_{{index}}">{{ choice }}</label>
-                                <input id="choice{{question._id}}_{{index}}" type="number" name="choice{{question._id}}" placeholder="Classer votre préférence" min="1" max="3">
+                                <input id="choice{{question._id}}_{{index}}" type="number" name="choice{{question._id}}" placeholder="0" min="1" max="3">
                             </div>
                             {% endfor %}
                             <p>Date et heure d'expiration du sondage:
                                 {{ question.expiration_date.strftime('%d/%m/%Y %H:%M') }}</p>
                             <button type="submit" class="button">Vote</button>
+                            <span class="tooltiptext">Classer votre choix par ordre de préférence</span>
                         </form>
                     {% endfor %}
                 {% else %}

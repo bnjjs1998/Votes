@@ -46,7 +46,9 @@ def get_sondage():
 
         return jsonify({
             "status_code": 200,
-            "Sondage": sondage
+            "Sondage": sondage,
+            "username": current_user.username,
+            "message": "Sondages récupérés avec succès."
         }), 200
 
     except Exception as e:
