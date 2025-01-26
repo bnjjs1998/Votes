@@ -4,18 +4,20 @@ from app import *
 from app import app
 from app import mongo
 
-# User Model
 class User(UserMixin):
-    def __init__(self, id, username, email):
+    def __init__(self, id, username, email=None):
         self.id = id
         self.username = username
         self.email = email
 
+
 @login_manager.user_loader
 def load_user(user_id):
+    # Rechercher l'utilisateur dans la base de données par son ID
     user_data = mongo.db.users.find_one({"_id": user_id})
     if user_data:
-        return User(user_id, user_data["username"], user_data["email"])
+        # Utilisez `.get()` pour éviter les KeyErrors si une clé est absente
+        return User(user_id, user_data["username"], user_data.get("email"))
     return None
 
 
@@ -46,13 +48,23 @@ def register():
         if mongo.db.users.find_one({"email": email}):
             return jsonify({"message": "User already exists"}), 400
 
+        if mongo.db.users.find_one({"username": username}):
+            return jsonify({"message": "User already exists"}), 400
+
+        if mongo.db.Profil_close.find_one({"username": username}):
+            return jsonify({"message": "User already exists"}), 400
+
+            # Déterminer le rôle
+        role = "admin" if username.lower() == "admin" else "utilisateur"
+
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
         user_id = str(uuid.uuid4())
         mongo.db.users.insert_one({
             "_id": user_id,
             "username": username,
             "email": email,
-            "password": hashed_password
+            "password": hashed_password,
+            "role": role
         })
         return jsonify({"message": "User registered successfully"}), 201
 
@@ -61,11 +73,11 @@ def register():
 def login():
     if request.method == 'POST':
         # Récupérer les données du formulaire
-        email = request.form.get('email')
+        username = request.form.get('username')
         password = request.form.get('password')
 
         # Vérifier si l'utilisateur existe dans la base de données
-        user_data = mongo.db.users.find_one({"email": email})
+        user_data = mongo.db.users.find_one({"username": username})
         if not user_data or not bcrypt.check_password_hash(user_data["password"], password):
             return jsonify({"message": "Invalid email or password"}), 401
 

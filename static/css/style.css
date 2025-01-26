@@ -206,6 +206,12 @@ footer {
     margin-bottom: 1rem;
     padding: 0 1rem;
 }
+.formVote p {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        font-style: italic; /* Optionnel : pour ajouter un style */
+    }
+
 
 .form_wrapper{
     width: 65%;
