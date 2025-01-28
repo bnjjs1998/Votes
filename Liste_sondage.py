@@ -6,7 +6,6 @@ from app import app
 from app import mongo
 from datetime import datetime
 
-
 @app.route('/get_all_questions', methods=['GET'])
 @login_required
 def get_all_questions():

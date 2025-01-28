@@ -7,7 +7,7 @@
 </head>
 <body>
 
-    <header>
+    <header class="header_menu" >
         <form action="/profile">
             <button class="usernameButton">{{ user }}</button>
         </form>
@@ -32,8 +32,11 @@
             </form>
             
         </div>
+
     </header>
     <main>
+
+
         <form action="/dashboard">
             <button class="button">back</button>
         </form>
@@ -56,110 +59,6 @@
         {% endwith %}
         </section>        
     </main>
-
-<style>
-        /* Style pour la section contenant les sondages */
-        #my_questions {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: auto;
-            grid-auto-rows: auto;
-            gap: var(--big-gap);
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-        }
-        .modifie_title{
-            display: flex;
-            flex-direction: column;
-            align-items: start;
-
-        }
-        .modifie_title button{
-            margin-top: 10px;
-            padding: 8px 12px;
-            cursor: pointer;
-        }
-
-
-        .changeTitle{
-            width: 50%;
-            padding: 8px;
-        }
-
-        .sondage_item {
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .title_quest p {
-            font-weight: bold;
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
-
-        .choice_quest input {
-            margin-bottom: 10px;
-            width: 50%;
-            padding: 8px;
-            font-size: 14px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-
-        .btn_action {
-            display: flex;
-            gap: 20px;
-            margin-top: 10px;
-        }
-
-        .btn_action button {
-            border: none;
-            border-radius: var(--border-radius-0);
-            background-color: #007bff;
-            color: #fff;
-            cursor: pointer;
-            font-size: 14px;
-            transition: var(--transition-property);
-        }
-
-        .btn_action button:hover {
-            background-color: #0056b3;
-        }
-
-        .btn_action button:active {
-            background-color: #003f7f;
-        }
-
-        /* Style pour les boutons spécifiques */
-        .btn_action button:nth-child(1) {
-            background-color: #28a745;
-        }
-
-        .btn_action button:nth-child(1):hover {
-            background-color: #218838;
-        }
-
-        .btn_action button:nth-child(2) {
-            background-color: #dc3545;
-        }
-
-        .btn_action button:nth-child(2):hover {
-            background-color: #c82333;
-        }
-
-        .btn_action button:nth-child(3) {
-            color: var(--silver-dark-2);
-            background-color: #ffc107;
-        }
-
-        .btn_action button:nth-child(3):hover {
-            background-color: #e0a800;
-        }
-</style>
 
 <script src="{{ url_for('static', filename='js/myquest.js') }}"></script>
 </body>

@@ -140,3 +140,21 @@ def vote():
     except Exception as e:
         print(f"Erreur lors du traitement : {e}")
         return jsonify({"status": 500, "message": "Erreur interne", "details": str(e)}), 500
+
+
+
+@app.route('/role')
+@login_required
+def role():
+    data_quest = mongo.db.users.find_one(
+        {"_id": current_user.id},
+        {"role": 1}
+    )
+    if data_quest:
+        return jsonify({
+            "status": 200,
+        })
+    else:
+        return jsonify({
+            "status": 404,
+        })

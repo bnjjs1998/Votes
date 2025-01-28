@@ -241,6 +241,15 @@ def change_state_btn():
             )
             print(f"Le sondage '{title_quest}' a été transféré ou mis à jour dans la collection 'questions'.")
 
+        if state == "Privé":
+            # Supprimer la question de la collection `questions`
+            mongo.db.questions.delete_one({"title_question": title_quest})
+            print(f"Le sondage '{title_quest}' a été supprimé de la collection 'questions'.")
+            return jsonify({
+                "status": 200,
+                "message": f"Le sondage '{title_quest}' a été marqué comme privé et supprimé de la collection 'questions'."
+            }), 200
+
     # Ne pas supprimer de `Mes sondages`, garder l'objet en place
     return jsonify({
         "status": 200,
