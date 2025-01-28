@@ -5,7 +5,6 @@ from app import *
 from app import app
 from app import mongo
 
-#retourner un élément aléatoire
 
 
 @app.route('/get_all_questions', methods=['GET'])
@@ -15,10 +14,38 @@ def get_all_questions():
 
     questions = []
     for question in all_question:
+        # Créez une copie de la question pour éviter de modifier l'original
         question_data = question.copy()
+
+        # Transformez l'_id en chaîne de caractères
         question_data['_id'] = str(question['_id'])
+
+        # Vérifiez la date d'expiration
+        expiration_date = question.get('expiration_date')
+        if expiration_date:
+            # Si la date est un objet datetime, utilisez-la directement
+            if isinstance(expiration_date, datetime):
+                expiration_date_obj = expiration_date
+            else:
+                # Sinon, convertissez-la en datetime
+                expiration_date_obj = datetime.strptime(expiration_date, '%Y-%m-%dT%H:%M:%S.%f+00:00')
+
+            # Vérifiez si la date est expirée
+            if datetime.now() > expiration_date_obj:
+                print("La date est expiré")
+
+                # Supprimez la question de la collection `questions`
+                delete_date_expire = mongo.db.questions.delete_one({"_id": question["_id"]})
+
+                if delete_date_expire:
+                    # Ajoutez la question dans la collection `scrutin_archive`
+                    insert_scrutin =  mongo.db.scrutin_archive.insert_one(question)
+
+
+
         questions.append(question_data)
 
+    # Renvoyez les questions au template
     return render_template('all_questions.html', questions=questions, user=current_user.username)
 
 @app.route('/get_last_questions', methods=['GET'])

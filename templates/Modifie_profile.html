@@ -16,8 +16,9 @@
         <button id="update_email" type="button">Modifier Email</button> <!-- type="button" pour éviter que le formulaire se soumette automatiquement -->
     </form>
 
-    <form action="/remove_profile" method="GET" >
-        <button>Supprimer</button>*
+    <br>
+    <form action="/remove_profile" method="POST" >
+        <button>Supprimer Le profil</button>
     </form>
 
     <script src="{{ url_for('static', filename='js/Modifie_profile.js') }}"></script>

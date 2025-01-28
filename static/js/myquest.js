@@ -1,4 +1,3 @@
-// Récupérer les sondages depuis l'API
 fetch('/get_sondage_current_id', {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' }
@@ -11,248 +10,193 @@ fetch('/get_sondage_current_id', {
     })
     .then(data => {
         console.log("Données reçues:", data);
+        const usernameButton = document.querySelector('form[action="/profile"] button');
+        usernameButton.textContent = data.username;
 
         const container = document.getElementById('my_questions');
         container.innerHTML = ""; // Nettoyage du conteneur avant ajout
 
-        if (data.status_code === 200 && Array.isArray(data.Sondage)) {
-            const sondages = data.Sondage;
+        const sondages = data.Sondage;
 
-            if (sondages.length === 0) {
-                container.textContent = "Aucun sondage disponible pour l'instant.";
-                return;
+        if (sondages.length === 0) {
+            container.textContent = "Aucun sondage disponible pour l'instant.";
+            return;
+        }
+        sondages.forEach((question, index) => {
+            const sondageDiv = document.createElement('div');
+            sondageDiv.classList.add('sondage_item', 'form_container');
+
+            // Section titre
+            const titleSection = document.createElement('div');
+            titleSection.classList.add('title_quest', 'input_container');
+
+            const titleHeading = document.createElement('h3');
+            titleHeading.textContent = `${index + 1}. ${question.title_question}`;
+
+            const titleInput = document.createElement('input');
+            titleInput.type = 'text';
+            titleInput.value = question.title_question;
+            titleInput.style.width = '100%'
+
+            const updateTitleButton = createButton('updateTitle', 'Mettre à jour le titre', question, { titleInput, titleHeading });
+            titleSection.append(titleHeading, titleInput, updateTitleButton);
+            sondageDiv.appendChild(titleSection);
+
+            // Génération des choix
+            const choicesContainer = document.createElement('div');
+            choicesContainer.classList.add('choices_container');
+            const choicesInput = [];
+
+            if (question.choices && question.choices.length > 0) {
+                question.choices.forEach((choice, i) => {
+                    const choiceDiv = document.createElement('div');
+                    choiceDiv.classList.add('input_container', 'input_wide');
+
+                    const choiceLabel = document.createElement('label');
+                    choiceLabel.textContent = `Choix ${i + 1}:`;
+
+                    const choiceInput = document.createElement('input');
+                    choiceInput.type = 'text';
+                    choiceInput.value = choice;
+
+                    choicesInput.push({ input: choiceInput, oldValue: choice });
+                    choiceDiv.append(choiceLabel, choiceInput);
+                    choicesContainer.appendChild(choiceDiv);
+                });
+            } else {
+                const noChoicesMessage = document.createElement('div');
+                noChoicesMessage.textContent = "Aucun choix disponible.";
+                noChoicesMessage.style.color = 'gray';
+                choicesContainer.appendChild(noChoicesMessage);
             }
 
-            sondages.forEach(question => {
-                const sondageDiv = createSondageDiv(question);
-                container.appendChild(sondageDiv);
-            });
-        } else {
-            container.textContent = "Aucun sondage trouvé ou une erreur s'est produite.";
-        }
+            sondageDiv.appendChild(choicesContainer);
+            
+            // Boutons d'actions
+            const updateChoicesButton = createButton('updateChoices', 'Mettre à jour les choix', question, { choicesInput });
+            const deleteButton = createButton('deleteQuestion', 'Supprimer la question', question);
+            const toggleVisibilityButton = createButton('toggleVisibility', question.is_public ? 'Rendre Privé' : 'Rendre Public', question);
+
+            sondageDiv.append(updateChoicesButton ,deleteButton, toggleVisibilityButton);
+            container.appendChild(sondageDiv);
+        });
     })
     .catch(error => {
         console.error("Erreur lors de la récupération des sondages:", error);
-        const container = document.getElementById('my_questions');
-        container.innerHTML = `
-            <div style="color: red; font-weight: bold;">
-                Une erreur s'est produite lors du chargement des sondages. Veuillez réessayer plus tard.
-            </div>
-        `;
     });
 
-// Fonction pour créer une div de sondage
-function createSondageDiv(question) {
-    const sondageDiv = document.createElement('div');
-    sondageDiv.classList.add('sondage_item');
-    sondageDiv.classList.add('form_container');
-
-    const titleSection = createTitleSection(question);
-    const choiceSection = createChoiceSection(question);
-    const btnSection = createButtonSection(question);
-
-    sondageDiv.appendChild(titleSection);
-    sondageDiv.appendChild(choiceSection);
-    sondageDiv.appendChild(btnSection);
-
-    return sondageDiv;
-}
-
-// Fonction pour créer la section du titre
-function createTitleSection(question) {
-    const titleSection = document.createElement('div');
-    titleSection.classList.add('title_quest');
-    titleSection.classList.add('input_container');
-
-    const headingTitle = document.createElement('h3');
-    headingTitle.textContent = `Titre : ${question.title_question}`;
-    // headingTitle.style.fontWeight = 'bold';
-
-    const titleInput = document.createElement('input');
-    titleInput.setAttribute('type', 'text');
-    titleInput.value = question.title_question;
-    titleInput.placeholder = 'Modifier le titre';
-
-    titleInput.addEventListener('input', () => {
-        question.title_question = titleInput.value; // Met à jour le titre en temps réel
-    });
-
-    const changeTitleButton = createButton('Changer le titre', () => {
-        fetch('/update_title', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                sondage_id: question._id,
-                new_title: question.title_question
-            })
-        })
-            .then(response => response.json())
-            .then(data => {
-                alert("Le titre a été mis à jour avec succès.");
-            })
-            .catch(error => {
-                alert("Erreur lors de la mise à jour du titre:", error);
-            });
-    });
-    changeTitleButton.classList.add('button')
-
-    titleSection.appendChild(headingTitle);
-    titleSection.appendChild(titleInput);
-    titleSection.appendChild(changeTitleButton);
-
-    return titleSection;
-}
-
-// Fonction pour créer la section des choix
-function createChoiceSection(question) {
-    const choiceSection = document.createElement('div');
-    choiceSection.classList.add('choice_quest');
-
-    question.choices.forEach((choice, index) => {
-        const choiceWrapper = document.createElement('div')
-        choiceWrapper.classList.add('input_container');
-        choiceWrapper.classList.add('input_wide');
-        const label = document.createElement('label');
-        label.textContent = `Option ${index + 1}:`;
-
-        const input = document.createElement('input');
-        input.setAttribute('type', 'text');
-        input.value = choice;
-        input.placeholder = 'Modifier ce choix';
-        input.style.marginLeft = '10px';
-
-        input.addEventListener('input', () => {
-            question.choices[index] = input.value; // Mise à jour en temps réel
-        });
-
-        choiceWrapper.appendChild(label);
-        choiceWrapper.appendChild(input);
-        choiceWrapper.appendChild(document.createElement('br'))
-        choiceSection.appendChild(choiceWrapper);
-    });
-
-    return choiceSection;
-}
-
-// Fonction pour créer la section des boutons d'action
-function createButtonSection(question) {
-    const btnSection = document.createElement('div');
-    btnSection.classList.add('btn_action');
-
-    // Bouton pour changer l'état de confidentialité
-    const togglePrivacyButton = createButton(
-        question.privacy === 'public' ? 'Passer en privé' : 'Passer en public',
-        () => {
-            const newPrivacy = question.privacy === 'public' ? 'private' : 'public';
-            question.privacy = newPrivacy;
-            togglePrivacyButton.textContent = newPrivacy === 'public' ? 'Passer en privé' : 'Passer en public';
-
-            fetch('/Change_state_btn', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    sondage_id: question._id,
-                    question_title: question.title_question,
-                    choices: question.choices,
-                    privacy: newPrivacy
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(`Confidentialité mise à jour : ${newPrivacy}`);
-                })
-                .catch(error => {
-                    console.error("Erreur lors de l'envoi des données au serveur :", error);
+    const createButton = (type, textContent, question, inputs) => {
+        const btn = document.createElement('button');
+        btn.classList.add('button');
+        btn.textContent = textContent;
+    
+        switch (type) {
+            case 'updateTitle':
+                btn.addEventListener('click', () => {
+                    const newTitle = inputs.titleInput.value.trim();
+                    if (newTitle === "") {
+                        alert("Le titre ne peut pas être vide !");
+                        return;
+                    }
+                    fetch('/update_title', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            old_Titre: question.title_question,
+                            new_Titre: newTitle
+                        })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                question.title_question = newTitle;
+                                inputs.titleHeading.textContent = newTitle;
+                                console.log("Titre mis à jour avec succès :", data.message);
+                            } else {
+                                console.error(data.error || "Erreur lors de la mise à jour du titre !");
+                            }
+                        })
+                        .catch(error => console.error("Erreur :", error.message));
                 });
+                break;
+    
+            case 'updateChoices':
+                btn.addEventListener('click', () => {
+                    const updatedChoices = [];
+                    const errors = [];
+                    const seenChoices = new Set();
+    
+                    inputs.choicesInput.forEach(({ input, oldValue }) => {
+                        const newChoice = input.value.trim();
+                        if (newChoice === "") {
+                            errors.push("Les choix ne peuvent pas être vides !");
+                        } else if (seenChoices.has(newChoice)) {
+                            errors.push(`Le choix "${newChoice}" est en double !`);
+                        } else {
+                            updatedChoices.push({ oldValue, newValue: newChoice });
+                            seenChoices.add(newChoice);
+                        }
+                    });
+    
+                    if (errors.length > 0) {
+                        alert(errors.join("\n"));
+                        return;
+                    }
+    
+                    fetch('/update_choices', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            Titre: question.title_question,
+                            choices: updatedChoices
+                        })
+                    })
+                        .then(response => response.json())
+                        .then(data => console.log("Choix mis à jour :", data))
+                        .catch(error => {
+                            console.error("Erreur lors de la mise à jour des choix :", error);
+                            alert("Une erreur s'est produite.");
+                        });
+                });
+                break;
+    
+            case 'toggleVisibility':
+                btn.addEventListener('click', () => {
+                    question.is_public = !question.is_public;
+                    btn.textContent = question.is_public ? 'Rendre Privé' : 'Rendre Public';
+    
+                    fetch('/Change_state_btn', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            Titre: question.title_question,
+                            state: question.is_public ? 'Public' : 'Privé'
+                        })
+                    })
+                        .then(response => response.json())
+                        .then(data => console.log("Visibilité mise à jour :", data))
+                        .catch(error => console.error("Erreur :", error));
+                });
+                break;
+    
+            case 'deleteQuestion':
+                btn.addEventListener('click', () => {
+                    fetch('/delete', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ Titre: question.title_question })
+                    })
+                        .then(response => response.json())
+                        .then(data => console.log("Question supprimée :", data))
+                        .catch(error => console.error("Erreur :", error));
+                });
+                break;
+    
+            default:
+                console.error("Type de bouton non reconnu :", type);
+                alert("Type de bouton non reconnu !", type);
         }
-    );
-
-    // Bouton pour modifier les choix
-    const changeChoicesButton = createButton('Changer les choix', '', () => {
-        fetch('/update_choices', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                sondage_id: question._id,
-                new_choices: question.choices
-            })
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Les choix ont été mis à jour avec succès.");
-            })
-            .catch(error => {
-                console.error("Erreur lors de la mise à jour des choix:", error);
-            });
-    });
-
-    // Bouton pour supprimer un sondage
-    const deleteButton = createButton('Supprimer ce sondage', '', () => {
-        fetch('/Delete_btn', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                question_title: question.title_question,
-                choices: question.choices,
-                privacy: question.privacy
-            })
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log("Sondage supprimé avec succès:", data);
-            })
-            .catch(error => {
-                console.error("Erreur lors de la suppression du sondage:", error);
-            });
-    });
-
-    // Bouton pour bloquer les votes
-    const blockButton = createButton('Bloquer les votes', '', () => {
-        fetch('/B_btn', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                question_title: question.title_question,
-                choices: question.choices,
-                privacy: question.privacy,
-                status_sondage: 'Block'
-            })
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log("Sondage bloqué avec succès:", data);
-            })
-            .catch(error => {
-                console.error("Erreur lors du blocage des votes:", error);
-            });
-    });
-
-    // Ajouter tous les boutons à la section
-    btnSection.appendChild(togglePrivacyButton);
-    btnSection.appendChild(changeChoicesButton);
-    btnSection.appendChild(deleteButton);
-    btnSection.appendChild(blockButton);
-
-    return btnSection;
-}
-
-// Fonction générique pour créer un bouton
-function createButton(text, marginTop, onClick) {
-    const button = document.createElement('button');
-    button.classList.add('button');
-    button.textContent = text;
-    button.style.marginTop = marginTop;
-    button.setAttribute('type', 'button');
-    button.addEventListener('click', onClick);
-    return button;
-}
+    
+        return btn;
+    };
+    
