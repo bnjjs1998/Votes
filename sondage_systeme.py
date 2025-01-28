@@ -70,6 +70,10 @@ def post_sondage():
 @app.route('/Vote', methods=['POST'])
 @login_required
 def vote():
+    if not request.is_json:
+        print("data is not json", request.data)
+        return jsonify({"status": 415, "message": "Le contenu doit être au format JSON"}), 415
+
     try:
         # Récupération des données JSON
         data = request.get_json()

@@ -1,15 +1,19 @@
 from codecs import replace_errors
-from flask import request, jsonify, render_template
+from flask import request, jsonify, render_template, flash
 from flask_login import login_required, current_user
 from app import *
 from app import app
 from app import mongo
-
-
+from datetime import datetime
 
 @app.route('/get_all_questions', methods=['GET'])
 @login_required
 def get_all_questions():
+    return render_template('all_questions.html')
+
+@app.route('/api_get_all_questions', methods=['GET'])
+@login_required
+def api_get_all_questions():
     all_question = mongo.db.questions.find()
 
     questions = []
@@ -40,13 +44,18 @@ def get_all_questions():
                 if delete_date_expire:
                     # Ajoutez la question dans la collection `scrutin_archive`
                     insert_scrutin =  mongo.db.scrutin_archive.insert_one(question)
-
-
+                flash("Une question expirée a été archivée et supprimée.", "warning")
 
         questions.append(question_data)
+    flash("Toutes les questions ont été récupérées avec succès.", "success")
+    user_role = mongo.db.users.find_one({"_id": current_user.id}).get("role", "user")
 
-    # Renvoyez les questions au template
-    return render_template('all_questions.html', questions=questions, user=current_user.username)
+    # Transmettre les données au template
+    return jsonify({
+        "questions":questions, 
+        "user_role":user_role, 
+        "user":current_user.username
+    })
 
 @app.route('/get_last_questions', methods=['GET'])
 @login_required

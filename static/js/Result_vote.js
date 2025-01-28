@@ -39,7 +39,7 @@ fetch('/get_result', {
     questions.forEach((question, index) => {
         // Créer un conteneur pour chaque question
         const questionElement = document.createElement('div');
-        questionElement.className = 'question';
+        questionElement.className = 'sondage_item';
 
         // Ajouter le titre de la question
         const title = document.createElement('h3');
@@ -75,6 +75,7 @@ fetch('/get_result', {
             scoresTitle.textContent = 'Scores Condorcet :';
             scoresContainer.appendChild(scoresTitle);
 
+            // Ici, Condition pour afficher les scores sous forme de liste
             const scoresList = document.createElement('ul');
             Object.entries(question.Condorcet_Scores).forEach(([key, value]) => {
                 const scoreItem = document.createElement('li');

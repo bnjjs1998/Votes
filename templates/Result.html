@@ -3,19 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <title>Résultat votes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 <header>
-    <form action="/dashboard">
-        <button>back</button>
+    <form action="/profile">
+        <button class="usernameButton">{{ user }}</button>
     </form>
-</header>
-<h1>Ici l'ensemble des résultats définitif</h1>
-<div id="Result_container" class="Div_resul">
-    <p> titre_questions</p>
-    <div  class="Résul_final">
+    <div class="menu">
+        <form action="/dashboard" method="get">
+            <button class="button">Dashboard</button>
+        </form>
+        <form action="/get_my_questions" method="get">
+            <button class="button">My Questions</button>
+        </form>
+        <form action="/get_all_questions" method="get">
+            <button class="button"> All questions</button>
+        </form>
+        <!-- <form action="/result" method="GET">
+            <button type="submit" class="button">Résultat</button>
+        </form> -->
+        <form action="/modifie_profile">
+            <button class="button">Modifier mon profil</button>
+        </form>
+        <form action="{{ url_for('logout') }}" method="POST">
+            <button type="submit" class="button danger">Se déconnecter</button>
+        </form>
     </div>
-</div>
+</header>
+<main>
+    <form action="/dashboard">
+        <button class="button">back</button>
+    </form>
+    <section class="section-wide">
+        <h1>Ici l'ensemble des résultats définitif</h1>
+
+        <div id="Result_container" class="all-questions">
+            <p> titre_questions</p>
+            <div  class="Résul_final">
+            </div>
+        </div>
+    </section>
+    </main>
 
 <!-- Ici, ça sera l'endroit d'import de mes différents scripts -->
 <script src="{{ url_for('static', filename='js/result_vote.js') }}"></script>

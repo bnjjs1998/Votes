@@ -28,7 +28,7 @@
                 <button class="button">Modifier mon profil</button>
             </form>
             <form action="{{ url_for('logout') }}" method="POST">
-                <button type="submit" class="button deconnexion">Se déconnecter</button>
+                <button type="submit" class="button danger">Se déconnecter</button>
             </form>
             
         </div>
@@ -40,13 +40,24 @@
         <form action="/dashboard">
             <button class="button">back</button>
         </form>
-        <section class="section-wide">
+        <section id="section" class="section-wide">
 
             <h1>Mes sondages</h1>
-            <div id="my_questions">
-        </section>
-        
-        </div>
+            <div id="my_questions" class="all-questions">
+
+            </div>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div id="flash-messages" class="notifications">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+        </section>        
     </main>
 
 <script src="{{ url_for('static', filename='js/myquest.js') }}"></script>

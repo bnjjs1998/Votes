@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Page non trouvée. Retournez à la page d'accueil." >
+  <title>Error page not found</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <main class="wrapper404">
+  </main>
+    <div class="container404">
+      <!-- <div>
+      </div> -->
+        <h1>Page non trouvée</h1>
+        <h3>Nous ne pouvons pas trouver la page que vous recherchez. Vérifiez l'URL ou revenez à la page d'accueil.<h3>
+          <form action="/dashboard" method="get">
+            <button class="button">Retour à l'accueil</button>
+        </form>
+    </div>
+</body>
+</html>
