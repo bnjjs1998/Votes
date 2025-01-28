@@ -28,7 +28,7 @@
                 <button class="button">Modifier mon profil</button>
             </form>
             <form action="{{ url_for('logout') }}" method="POST">
-                <button type="submit" class="button deconnexion">Se déconnecter</button>
+                <button type="submit" class="button danger">Se déconnecter</button>
             </form>
             
         </div>
@@ -42,10 +42,17 @@
             <h1>Tous les sondages disponibles</h1>
             
             <div id="questions-container" class="all-questions">
-                {% if questions %}
+                <!-- {% if questions %}
                     {% for question in questions %}
-                        <form method="POST" action="/Post_vote" class="formVote tooltip">
+                        <form method="POST" action="/Vote" id="{{ question._id}}" class="formVote tooltip">
                             <h3>{{question.title_question}}</h3>
+                            <p>Date et heure de validité: 
+                                {% if question.expiration_date %}
+                                {{ question.expiration_date }}
+                                {% else %}
+                                Inconnu
+                                {% endif %}
+                            </p>
                             {% for choice in question.choices %}
                             <div class="input_container number_input">
                                 <label for="choice{{question._id}}_{{index}}">{{ choice }}</label>
@@ -54,15 +61,20 @@
                             {% endfor %}
                             <button type="submit" class="button">Vote</button>
                             <span class="tooltiptext">Classer votre choix par ordre de préférence</span>
+                            {% if user_role == "admin" %}
+                            <form method="post" action="/delete_vote">
+                                <button class="button danger" data-id="{{ question._id }}">Supprimer sondage</button>
+                            </form>
+                            {% endif %}                        
                         </form>
                     {% endfor %}
                 {% else %}
                     <p>Aucun sondage trouvé.</p>
-                {% endif %}
+                {% endif %} -->
             </div>
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-            <div class="notifications">
+            <div id="flash-messages" class="notifications">
                 {% for category, message in messages %}
                 <div class="alert alert-{{ category }}">
                     {{ message }}
@@ -73,6 +85,6 @@
         {% endwith %}
         </section>
     </main>
-<script src="{{ url_for('static', filename='js/random_quest.js') }}"></script>
+<script src="{{ url_for('static', filename='js/get_all_questions.js') }}"></script>
 </body>
 </html>

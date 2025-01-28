@@ -28,7 +28,7 @@
                     <button class="button">Modifier mon profil</button>
                 </form>
                 <form action="{{ url_for('logout') }}" method="POST">
-                    <button type="submit" class="button deconnexion">Se déconnecter</button>
+                    <button type="submit" class="button danger">Se déconnecter</button>
                 </form>
                 
             </div>
@@ -92,6 +92,6 @@
         </footer>
     </div>
 <!-- Ici, ça sera l'endroit d'import de mes différents scripts -->
-<script src="{{ url_for('static', filename='js/random_quest.js') }}"></script>
+<script src="{{ url_for('static', filename='js/get_latest_questions.js') }}"></script>
 </body>
 </html>

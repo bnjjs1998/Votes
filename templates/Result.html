@@ -14,11 +14,11 @@
         <form action="/dashboard" method="get">
             <button class="button">Dashboard</button>
         </form>
-        <form action="/get_all_questions" method="get">
-            <button class="button"> All questions</button>
-        </form>
         <form action="/get_my_questions" method="get">
             <button class="button">My Questions</button>
+        </form>
+        <form action="/get_all_questions" method="get">
+            <button class="button"> All questions</button>
         </form>
         <!-- <form action="/result" method="GET">
             <button type="submit" class="button">Résultat</button>
@@ -27,7 +27,7 @@
             <button class="button">Modifier mon profil</button>
         </form>
         <form action="{{ url_for('logout') }}" method="POST">
-            <button type="submit" class="button deconnexion">Se déconnecter</button>
+            <button type="submit" class="button danger">Se déconnecter</button>
         </form>
     </div>
 </header>
