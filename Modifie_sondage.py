@@ -123,7 +123,7 @@ from flask import jsonify, request
 from flask_login import login_required, current_user
 from bson import ObjectId
 
-@app.route('/delete', methods=['POST'])
+@app.route('/delete_vote', methods=['POST'])
 @login_required
 def delete():
     try:
@@ -167,6 +167,19 @@ def delete():
     except Exception as e:
         print("Erreur inattendue :", str(e))
         return jsonify({"success": False, "error": "Une erreur interne s'est produite."}), 500
+
+@app.route('/delete_vote', methods=['POST'])
+@login_required
+def delete_vote():
+    if current_user.role != 'admin':
+        return jsonify({"status": "error", "message": "Accès refusé : vous n'êtes pas administrateur."}), 403
+
+    question_id = request.form.get("question_id")
+    
+    # Supprimez les votes associés à la question
+    mongo.db.questions.delete_one({"_id": ObjectId(question_id)})
+    
+    return jsonify({"status": "success", "message": "Votes supprimés avec succès."}), 200
 
 @app.route('/Change_state_btn', methods=['POST'])
 @login_required

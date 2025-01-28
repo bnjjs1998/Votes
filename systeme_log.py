@@ -66,6 +66,8 @@ def register():
             "password": hashed_password,
             "role": role
         })
+        flash("Utilisateur enregistré avec succès.", "success")
+        # return redirect('login.html'), 201
         return jsonify({"message": "User registered successfully"}), 201
 
 
@@ -89,10 +91,15 @@ def login():
         return redirect(url_for('dashboard'))
 
     # Afficher le formulaire de connexion pour les requêtes GET
-    return render_template('login.html')
+    return render_template('dashboard.html')
 @app.route('/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()
-    return jsonify({"message": "Logged out successfully"})
+    flash("Déconnecté avec succès.", "success")
+    return render_template('login.html'),200
+    # return jsonify({"message": "Logged out successfully"})
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404

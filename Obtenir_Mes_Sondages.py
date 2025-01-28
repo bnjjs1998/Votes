@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request, jsonify, flash
 from flask_login import login_required, current_user
 from app import *
 from app import app
@@ -26,6 +26,7 @@ def get_sondage():
         )
 
         if not data_quest or "Mes sondages" not in data_quest:
+            flash("Vous n'avez pas de sondages.", "warning")
             return jsonify({
                 "status_code": 404,
                 "message": "Utilisateur ou sondages non trouvés."
@@ -43,7 +44,7 @@ def get_sondage():
                     {"_id": current_user.id},
                     {"$pull": {"Mes sondages": {"title_question": item.get("title_question")}}}
                 )
-
+        flash("Sondages récupérés avec succès.", "success")
         return jsonify({
             "status_code": 200,
             "Sondage": sondage,
@@ -53,6 +54,7 @@ def get_sondage():
 
     except Exception as e:
         print(f"Erreur lors de la récupération des sondages : {e}")
+        flash("Une erreur est survenue lors de la récupération des sondages.", "danger")
         return jsonify({
             "status_code": 500,
             "message": "Une erreur interne est survenue."

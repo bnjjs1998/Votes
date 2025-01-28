@@ -1,4 +1,23 @@
-fetch('/get_last_questions', {
+
+const flashMessages = document.querySelectorAll('#flash-messages .alert');
+// Applique l'effet d'apparition (fade-in) à chaque message
+flashMessages.forEach((message, index) => {
+  // Ajout de la classe fade-in pour l'apparition
+  message.classList.add('fade-in');
+
+  // Déclenche la disparition après un délai (ex. : 3 secondes)
+  setTimeout(() => {
+      message.classList.remove('fade-in'); // Retire l'effet d'apparition
+      message.classList.add('fade-out'); // Ajoute l'effet de disparition
+
+      // Supprime le message après la disparition complète
+      setTimeout(() => {
+          message.remove();
+      }, 3000); // Durée de l'animation fade-out (1 seconde ici)
+  }, 3000 + index * 200); // Décalage pour chaque message
+});
+
+fetch('/api_get_all_questions', {
     method: 'GET',
 })
     .then(response => {
@@ -9,10 +28,11 @@ fetch('/get_last_questions', {
     })
     .then(data => {
         console.log('Données reçues:', data);
+        const { questions, user_role } = data;
         const questionsContainer = document.getElementById('questions-container');
         questionsContainer.innerHTML = '';
 
-        data.forEach(question => {
+        questions.forEach(question => {
             const questionForm = document.createElement('form');
             questionForm.setAttribute('method', 'POST');
             questionForm.setAttribute('action', '/Post_vote');
@@ -30,6 +50,7 @@ fetch('/get_last_questions', {
             expirationDate.style.marginBottom = '10px'; // Ajout d'une marge inférieure
             questionForm.appendChild(expirationDate);
 
+            
             // Dictionnaire pour stocker les réponses
             const answers = {
                 _id: question._id,
@@ -57,29 +78,58 @@ fetch('/get_last_questions', {
                 input.setAttribute('min', '1');
                 input.setAttribute('max', '3');
                 input.value = '0';
-
+                
                 // Mise à jour des réponses
                 input.addEventListener('change', function () {
-                    answers.choices[choice] = parseInt(input.value, 10); // Enregistre chaque choix avec son score
+                  answers.choices[choice] = parseInt(input.value, 10); // Enregistre chaque choix avec son score
                 });
 
                 questionForm.appendChild(div);
                 div.appendChild(label);
                 div.appendChild(input);
-            });
-
-            const buttonPostVote = document.createElement('button');
-            buttonPostVote.textContent = 'Vote';
-            buttonPostVote.setAttribute('id', 'submit_button');
-            buttonPostVote.setAttribute('type', 'submit');
-            buttonPostVote.classList.add('button');
-            const tooltip = document.createElement('span');
-            tooltip.classList.add('tooltiptext');
-            tooltip.textContent = 'Classez vos choix de 1 à 3, par ordre de préférence.';
-            questionForm.appendChild(buttonPostVote);
-            questionForm.appendChild(tooltip);
-
-            questionsContainer.appendChild(questionForm);
+              });
+              
+              const buttonPostVote = document.createElement('button');
+              buttonPostVote.textContent = 'Vote';
+              buttonPostVote.setAttribute('id', 'submit_button');
+              buttonPostVote.setAttribute('type', 'submit');
+              buttonPostVote.classList.add('button');
+              const tooltip = document.createElement('span');
+              tooltip.classList.add('tooltiptext');
+              tooltip.textContent = 'Classez vos choix de 1 à 3, par ordre de préférence.';
+              questionForm.appendChild(buttonPostVote);
+              questionForm.appendChild(tooltip);
+              
+              questionsContainer.appendChild(questionForm);
+              // Si l'utilisateur est admin, ajoutez un bouton de suppression
+              if (user_role === 'admin') {
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Supprimer ce sondage';
+                deleteButton.classList.add('button', 'danger');
+                deleteButton.addEventListener('click', () => {
+                    if (confirm('Voulez-vous vraiment supprimer ce sondage ?')) {
+                        fetch('/delete_vote', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ question_id: question._id })
+                        })
+                            .then(response => response.json())
+                            .then(result => {
+                                if (result.success) {
+                                    alert('Sondage supprimé avec succès.');
+                                    questionDiv.remove();
+                                } else {
+                                    alert(result.error || 'Erreur lors de la suppression.');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Erreur lors de la suppression:', error);
+                                alert('Une erreur est survenue.');
+                            });
+                    }
+                });
+                questionForm.appendChild(deleteButton);
+            }
 
             // Gestion de la soumission du formulaire
             questionForm.addEventListener('submit', function (event) {
@@ -106,51 +156,3 @@ fetch('/get_last_questions', {
     .catch(error => {
         console.error('Erreur de récupération des questions:', error);
     });
-
-// document.getElementById("submit_button").addEventListener("click", async function (event) {
-//     event.preventDefault();
-//     const formData = new FormData(document.getElementById("newFormVote"));
-//     try {
-//         const response = await fetch("/Post_sondage", {
-//             method: "POST",
-//             body: formData,
-//         });
-//         const result = await response.json();
-//         if (response.ok) {
-//             alert(result.message); // Affiche l'alerte Windows avec le message du serveur
-//             location.reload();
-//         } else {
-//             alert(`Erreur : ${result.error}`);
-//         }
-//     } catch (error) {
-//         alert("Une erreur est survenue. Veuillez réessayer.");
-//     }
-// });
-
-// function refreshQuestionsContainer() {
-//     fetch("/get_last_questions") // Mettez l'URL pour récupérer les questions à jour
-//         .then(response => response.text())
-//         .then(html => {
-//             console.log("Nouveau contenu des questions :", html);
-//             document.getElementById("questions-container").innerHTML = html;
-//         })
-//         .catch(error => console.error("Erreur lors de la mise à jour :", error));
-// }
-
-const flashMessages = document.querySelectorAll('#flash-messages .alert');
-// Applique l'effet d'apparition (fade-in) à chaque message
-flashMessages.forEach((message, index) => {
-    // Ajout de la classe fade-in pour l'apparition
-    message.classList.add('fade-in');
-
-    // Déclenche la disparition après un délai (ex. : 3 secondes)
-    setTimeout(() => {
-        message.classList.remove('fade-in'); // Retire l'effet d'apparition
-        message.classList.add('fade-out'); // Ajoute l'effet de disparition
-
-        // Supprime le message après la disparition complète
-        setTimeout(() => {
-            message.remove();
-        }, 3000); // Durée de l'animation fade-out (1 seconde ici)
-    }, 3000 + index * 200); // Décalage pour chaque message
-});

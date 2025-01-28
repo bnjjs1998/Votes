@@ -202,3 +202,20 @@ fetch('/get_sondage_current_id', {
         return btn;
     };
     
+    const flashMessages = document.querySelectorAll('#flash-messages .alert');
+    // Applique l'effet d'apparition (fade-in) à chaque message
+    flashMessages.forEach((message, index) => {
+        // Ajout de la classe fade-in pour l'apparition
+        message.classList.add('fade-in');
+
+        // Déclenche la disparition après un délai (ex. : 3 secondes)
+        setTimeout(() => {
+            message.classList.remove('fade-in'); // Retire l'effet d'apparition
+            message.classList.add('fade-out'); // Ajoute l'effet de disparition
+
+            // Supprime le message après la disparition complète
+            setTimeout(() => {
+                message.remove();
+            }, 3000); // Durée de l'animation fade-out (1 seconde ici)
+        }, 3000 + index * 200); // Décalage pour chaque message
+    });
